@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet as p
-import mmKukaHusky
+from env import mmKukaHusky
 import random
 from pkg_resources import parse_version
 import pyglet

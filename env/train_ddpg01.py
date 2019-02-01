@@ -7,15 +7,15 @@ from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 np.random.seed(1)
 tf.set_random_seed(1)
 
-MAX_EPISODES = 1000
-MAX_EP_STEPS = 1000
+MAX_EPISODES = 500
+MAX_EP_STEPS = 500
 LR_A = 1e-4  # learning rate for actor
 LR_C = 1e-4  # learning rate for critic
 GAMMA = 0.9  # reward discount
 REPLACE_ITER_A = 800
 REPLACE_ITER_C = 700
-MEMORY_CAPACITY = 100000
-BATCH_SIZE = 64
+MEMORY_CAPACITY = 1e6
+BATCH_SIZE = 128
 VAR_MIN = 0.1
 RENDER = True
 LOAD = 0

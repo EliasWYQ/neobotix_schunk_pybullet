@@ -5,35 +5,20 @@
 <!-- =================================================================================== -->
 <robot name="mp500lwa4d_robot">
   <!--+++++++++ Material +++++++++-->
-  <material name="Black">
-    <color rgba="0.0 0.0 0.0 1.0"/>
+  <material name="DarkBlue">
+    <color rgba="0.1 0.2 0.5 1.0"/>
   </material>
-  <material name="Blue">
-    <color rgba="0.0 0.0 0.8 1.0"/>
-  </material>
-  <material name="Green">
-    <color rgba="0.0 0.8 0.0 1.0"/>
-  </material>
-  <material name="Grey">
-    <color rgba="0.7 0.7 0.7 1.0"/>
-  </material>
-  <material name="Grey2">
+  <material name="WhiteGrey">
     <color rgba="0.9 0.9 0.9 1.0"/>
   </material>
-  <material name="Red">
-    <color rgba="0.8 0.0 0.0 1.0"/>
-  </material>
-  <material name="White">
-    <color rgba="1.0 1.0 1.0 1.0"/>
-  </material>
   <material name="Yellow">
-    <color rgba="1.0 1.0 0 1.0"/>
+    <color rgba="1.0 0.8 0 1.0"/>
   </material>
   <material name="LightGrey">
     <color rgba="0.7 0.7 0.7 1.0"/>
   </material>
   <material name="DarkGrey">
-    <color rgba="0.4 0.4 0.4 1.0"/>
+    <color rgba="0.2 0.2 0.2 1.0"/>
   </material>
   <material name="DarkGolden">
     <color rgba="0.4 0.4 0.3 1.0"/>
@@ -69,7 +54,7 @@
         <!--cylinder length="0.381" radius="0.2545"/-->
         <!--box size="0.445 0.277 0.17"/-->
       </geometry>
-      <material name="Grey"/>
+      <material name="DarkBlue"/>
     </visual>
     <collision name="body_collision">
       <origin rpy="0 0 -1.57" xyz="-0.160 0.0 0.08"/>
@@ -82,7 +67,7 @@
   </link>
   <!--+++++++++++++++wheel_left_link++++++++++++++++++-->
   <link name="wheel_left_link" type="wheel">
-      <contact>
+    <contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
@@ -98,7 +83,7 @@
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01"/>
       </geometry>
-      <material name="Black"/>
+      <material name="LightGrey"/>
     </visual>
     <collision>
       <origin rpy="0 1.57 -1.57" xyz="0 0 0"/>
@@ -148,7 +133,7 @@ Principal axes are :
 axis momenta are :
 | 0.000000 0.000000 0.000000 | -->
   <link name="wheel_right_link" type="wheel">
-      <contact>
+    <contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
@@ -165,7 +150,7 @@ axis momenta are :
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01"/>
       </geometry>
-      <material name="Black"/>
+      <material name="LightGrey"/>
     </visual>
     <collision>
       <origin rpy="0 1.57 -1.57" xyz="0 0 0"/>
@@ -197,7 +182,7 @@ axis momenta are :
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/HANGER-WHEEL.STL" scale="0.01 0.01 0.01"/>
       </geometry>
-      <material name="Grey"/>
+      <material name="LightGrey"/>
     </visual>
     <collision>
       <origin rpy="0 0 -1.57" xyz="0 0 0"/>
@@ -228,7 +213,7 @@ axis momenta are :
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_podest_link.stl"/>
       </geometry>
-      <material name="LightGrey"/>
+      <material name="DarkGolden"/>
     </visual>
     <collision>
       <geometry>
@@ -266,16 +251,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.06" length="0.150" mass="3.6">
-                <origin xyz="0 0 0.02" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_1_link.stl"/>
       </geometry>
-      <material name="LightGrey"/>
+      <material name="DarkGolden"/>
     </visual>
     <collision>
       <geometry>
@@ -299,16 +279,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.06" length="0.150" mass="2.0">
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_2_link.stl"/>
       </geometry>
-      <material name="Black"/>
+      <material name="DarkGrey"/>
     </visual>
     <collision>
       <geometry>
@@ -332,16 +307,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.06" length="0.2" mass="2.0">
-                <origin xyz="0.0 0 -0.2" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_3_link.stl"/>
       </geometry>
-      <material name="LightGrey"/>
+      <material name="DarkGolden"/>
     </visual>
     <collision>
       <geometry>
@@ -365,16 +335,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.06" length="0.150" mass="1.2">
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_4_link.stl"/>
       </geometry>
-      <material name="Black"/>
+      <material name="DarkGrey"/>
     </visual>
     <collision>
       <geometry>
@@ -398,16 +363,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.06" length="0.15" mass="1.2">
-                <origin xyz="0 0 -0.18" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_5_link.stl"/>
       </geometry>
-      <material name="LightGrey"/>
+      <material name="DarkGolden"/>
     </visual>
     <collision>
       <geometry>
@@ -431,16 +391,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:sphere_inertial radius="0.05" mass="1.9">
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </xacro:sphere_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_6_link.stl"/>
       </geometry>
-      <material name="Black"/>
+      <material name="DarkGrey"/>
     </visual>
     <collision>
       <geometry>
@@ -463,16 +418,11 @@ axis momenta are :
       <origin xyz="0 0 0"/>
       <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
-    <!--
-            <xacro:cylinder_inertial radius="0.03" length="0.035" mass="0.05">
-                <origin xyz="0 0 0.06" rpy="0 0 0"/>
-            </xacro:cylinder_inertial>
-            -->
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_7_link.stl"/>
       </geometry>
-      <material name="LightGrey"/>
+      <material name="DarkGolden"/>
     </visual>
     <collision>
       <geometry>
@@ -487,7 +437,7 @@ axis momenta are :
   </joint>
   <link name="gripper_podest_link">
     <inertial>
-      <mass value="0.001"/>
+      <mass value="0.01"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
     </inertial>
@@ -496,8 +446,7 @@ axis momenta are :
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_base_link.stl"/>
       </geometry>
-      <material name="black">
-        <color rgba="0 0 0 1"/>
+      <material name="DarkGrey">
       </material>
     </visual>
     <collision>
@@ -515,13 +464,15 @@ axis momenta are :
   <link name="gripper_palm_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.001"/>
+      <mass value="0.01"/>
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </inertial>
     <visual>
       <geometry>
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/pg70.stl"/>
       </geometry>
+      <material name="DarkGolden">
+      </material>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0.03145"/>
@@ -541,15 +492,14 @@ axis momenta are :
   <link name="gripper_finger_left_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.00"/>
+      <mass value="0.01"/>
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </inertial>
     <visual>
       <geometry>
         <box size="0.03 0.01 0.08"/>
       </geometry>
-      <material name="black">
-        <color rgba="0 0 0 1"/>
+      <material name="WhiteGrey">
       </material>
     </visual>
     <collision>
@@ -570,15 +520,14 @@ axis momenta are :
   <link name="gripper_finger_right_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.00"/>
+      <mass value="0.01"/>
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </inertial>
     <visual>
       <geometry>
         <box size="0.03 0.01 0.08"/>
       </geometry>
-      <material name="black">
-        <color rgba="0 0 0 1"/>
+      <material name="WhiteGrey">
       </material>
     </visual>
     <collision>
@@ -611,7 +560,7 @@ axis momenta are :
         <!--cylinder length="0.154" radius="0.053" /-->
         <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/SICK-S300.STL"/>
       </geometry>
-      <material name="Gazebo/Yellow"/>
+      <material name="Yellow"/>
     </visual>
     <collision>
       <origin rpy="3.14 0 -1.57" xyz="0 0 0"/>

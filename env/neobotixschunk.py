@@ -6,7 +6,6 @@ model modified by Y. Zhang and J. Su.
 '''
 import os
 import inspect
-
 import pybullet as p
 import numpy as np
 
@@ -31,20 +30,23 @@ class NeobotixSchunk:
         self.useOrientation = 1
         self.read_sim = 0
         self.randInitial =randomInitial
-        self.j1_limit = np.pi
-        self.j2_limit = 123/180*np.pi
-        self.j3_limit = 125/180*np.pi
-        self.j4_limit = 170/180*np.pi
+        self.j1_limit = np.pi  # limits for arm link 1, 3, 5
+        self.j4_limit = 121/180*np.pi  # limits for arm link 4
+        self.j6_limit = 115/180*np.pi  # limits for arm link 2, 6
+        self.j7_limit = 170/180*np.pi  # limits for arm link 7
         self.jointPosition = []
         self.baseVelocity = []
         self.wheelIndex = [1, 2]
         self.armIndex = [6, 7, 8, 9, 10, 11, 12]
         self.neobotixschunkEndEffectorIndex = 17
+        self.neobotixschunkUid = None
         self.reset()
 
     def reset(self):
-        #self.neobotixschunkUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/NeobotixSchunk.urdf"))
+        # load robot model
         self.neobotixschunkUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d.urdf"), flags=p.URDF_USE_SELF_COLLISION)
+        # disable collision between link 10 and 12 : arm link 5 and 7
+        p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, 10, 12, enableCollision=0)
 
         for i in range(p.getNumJoints(self.neobotixschunkUid)):
             print(p.getJointInfo(self.neobotixschunkUid, i))
@@ -52,12 +54,12 @@ class NeobotixSchunk:
         # reset arm joint positions and controllers
         if self.randInitial:
             j1 = np.random.uniform(-self.j1_limit, self.j1_limit)
-            j2 = np.random.uniform(-self.j2_limit, self.j2_limit)
+            j2 = np.random.uniform(-self.j6_limit, self.j6_limit)
             j3 = np.random.uniform(-self.j1_limit, self.j1_limit)
-            j4 = np.random.uniform(-self.j3_limit, self.j3_limit)
+            j4 = np.random.uniform(-self.j4_limit, self.j4_limit)
             j5 = np.random.uniform(-self.j1_limit, self.j1_limit)
-            j6 = np.random.uniform(-self.j4_limit, self.j4_limit)
-            j7 = np.random.uniform(-self.j4_limit, self.j4_limit)
+            j6 = np.random.uniform(-self.j6_limit, self.j6_limit)
+            j7 = np.random.uniform(-self.j7_limit, self.j7_limit)
             initial_joint_positions = np.array([j1, j2, j3, j4, j5, j6, j7])
 
             bpos, born = p.getBasePositionAndOrientation(self.neobotixschunkUid)
@@ -82,7 +84,6 @@ class NeobotixSchunk:
             p.setJointMotorControl2(self.neobotixschunkUid, j, p.POSITION_CONTROL,
                                     targetPosition=initial_joint_positions[j-6], force=self.maxForce)
 
-
     def getObservationDimension(self):
         return len(self.getObservation())
 
@@ -100,7 +101,6 @@ class NeobotixSchunk:
         baseeul = p.getEulerFromQuaternion(baseorn)
         observation.extend(list(basepos))
         observation.extend(list(baseeul))
-
         return observation
 
     def check_base_velocity(self, base_vel, delta_bv):
@@ -111,28 +111,21 @@ class NeobotixSchunk:
         return base_vel
 
     def check_joint_states(self, joint_state, delta_j):
-        # joint limits from lwa4d data sheet
+        # joint limits from lwa4d data sheet and modified based on rviz visual
         if np.abs(joint_state[0]) > self.j1_limit:
             joint_state[0] = joint_state[0] - delta_j[0]
-
-        if np.abs(joint_state[1]) > self.j2_limit:
+        if np.abs(joint_state[1]) > self.j6_limit:
             joint_state[1] = joint_state[1] - delta_j[1]
-
         if np.abs(joint_state[2]) > self.j1_limit:
             joint_state[2] = joint_state[2] - delta_j[2]
-
-        if np.abs(joint_state[3]) > self.j3_limit:
+        if np.abs(joint_state[3]) > self.j4_limit:
             joint_state[3] = joint_state[3] - delta_j[3]
-
         if np.abs(joint_state[4]) > self.j1_limit:
             joint_state[4] = joint_state[4] - delta_j[4]
-
-        if np.abs(joint_state[5]) > self.j4_limit:
+        if np.abs(joint_state[5]) > self.j6_limit:
             joint_state[5] = joint_state[5] - delta_j[5]
-
-        if np.abs(joint_state[6]) > self.j4_limit:
+        if np.abs(joint_state[6]) > self.j7_limit:
             joint_state[6] = joint_state[6] - delta_j[6]
-
         return joint_state
 
     def applyAction(self, action):

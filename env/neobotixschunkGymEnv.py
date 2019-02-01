@@ -56,6 +56,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._maxSteps = maxSteps
         self._isEnableRandInit = randomInitial
         self._isDiscrete = isDiscrete
+        self._textID = None
         self._observation = []
         self._envStepCounter = 0
         self._timeStep = 0.01
@@ -103,16 +104,15 @@ class NeobotixSchunkGymEnv(gym.Env):
         p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
 
         d_space_scale = len(str(abs(self._count))) * 0.5
-        self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
+        # self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
         print('scale here: ', self._count, d_space_scale, self._maxSteps)
-        d_space_scale = 1
+        # d_space_scale = 1
         xpos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
         ypos = np.random.uniform(-d_space_scale, d_space_scale)
         zpos = np.random.uniform(0.4, 1.3)
         self.goal = np.array([xpos, ypos, zpos])
 
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), self.goal)
-
         self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
         self._envStepCounter = 0
         p.stepSimulation()
@@ -130,6 +130,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         observation = self._neobotixschunk.getObservation()
         observation.extend(self.goal)
         self._observation = observation
+        # print('observation: ', self._observation)
         return self._observation
 
     def __del__(self):
@@ -186,7 +187,6 @@ class NeobotixSchunkGymEnv(gym.Env):
         #     if (numPt > 0):
         #         reward = -closestPoints[0][8]  # contact distance
         #     return reward
-
         delta_dis = self.ee_dis - self._dis_vor
         self._dis_vor = self.ee_dis
 
@@ -211,6 +211,8 @@ class NeobotixSchunkGymEnv(gym.Env):
         if mode != "rgb_array":
             return np.array([])
         base_pos, orn = self._p.getBasePositionAndOrientation(self._neobotixschunk.neobotixschunkUid)
+        text = 'goal position : ' + str(self.goal) + '. ee position : ' + str(self._observation[0:3])
+        self._textID = p.addUserDebugText(text, [0, -2, 2])
         view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
             cameraTargetPosition=base_pos,
             distance=self._cam_dist,
@@ -237,7 +239,7 @@ class NeobotixSchunkGymEnv(gym.Env):
                                    np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d)])
         return action
 
-    if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    if parse_version(gym.__version__) >= parse_version('0.9.6'):
         render = _render
         reset = _reset
         seed = _seed
