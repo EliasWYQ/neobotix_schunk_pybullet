@@ -10,7 +10,6 @@ from gym.utils import seeding
 import numpy as np
 import pybullet as p
 import time
-
 from pkg_resources import parse_version
 import pyglet
 
