@@ -68,7 +68,7 @@
         <!--origin xyz="0.0 0.0 0.234" rpy="0 0 1.57" /--><!-- for cylinder -->
 	       <origin xyz="-0.160 0.0 0.09" rpy="0 0 -1.57" />
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-BODY.STL" scale="0.01 0.01 0.01"/>
+               <mesh filename="data/neobotixschunk/meshes/MP500-BODY.STL" scale="0.01 0.01 0.01"/>
 	    	<!--cylinder length="0.381" radius="0.2545"/-->
 	    	<!--box size="0.445 0.277 0.17"/-->
            </geometry>
@@ -77,7 +77,7 @@
        <collision name='body_collision'>
            <origin xyz="-0.160 0.0 0.09" rpy="0 0 -1.57" />
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-BODY.STL" scale="0.01 0.01 0.01"/>
+               <mesh filename="data/neobotixschunk/meshes/MP500-BODY.STL" scale="0.01 0.01 0.01"/>
                <!--<box size="0.814 0.592 0.4225"/>-->
           <!--cylinder length="0.381" radius="0.2545"/-->
            </geometry>
@@ -94,7 +94,7 @@
       <visual>
      	<origin xyz="0 0 0" rpy="0 0 -1.57" />
      	<geometry>
-            <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01" />
+            <mesh filename="data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01" />
      	</geometry>
      	<material name="Neobotix/Blue" />
       </visual>
@@ -141,7 +141,7 @@
      <visual>
          <origin xyz="0 0 0" rpy="0 0 -1.57" />
          <geometry>
-             <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01" />
+             <mesh filename="data/neobotixschunk/meshes/MP500-WHEEL.STL" scale="0.01 0.01 0.01" />
          </geometry>
          <material name="Neobotix/Blue" />
      </visual>
@@ -193,7 +193,7 @@
     <visual>
 		<origin xyz="0 0 -0.04" rpy="3.14 0 -1.57" />
 		<geometry>
-            <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/SICK-S300.STL" />
+            <mesh filename="data/neobotixschunk/meshes/SICK-S300.STL" />
 		</geometry>
 		<material name="Neobotix/Yellow" />
   	</visual>
@@ -215,14 +215,14 @@
       <visual>
           <origin xyz="0 0 0" rpy="0 0 -1.57" />
           <geometry>
-              <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/HANGER-WHEEL.STL" scale="0.01 0.01 0.01" />
+              <mesh filename="data/neobotixschunk/meshes/HANGER-WHEEL.STL" scale="0.01 0.01 0.01" />
 	      </geometry>
           <material name="Neobotix/Grey" />
 	  </visual>
       <collision>
 		 <origin xyz="0 0 0" rpy="0 0 -1.57" />
 		 <geometry>
-             <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/HANGER-WHEEL.STL" scale="0.01 0.01 0.01" />
+             <mesh filename="data/neobotixschunk/meshes/HANGER-WHEEL.STL" scale="0.01 0.01 0.01" />
           	<!--<sphere radius="0.00852"/>-->
 		 </geometry>
       </collision>
@@ -256,13 +256,13 @@
       </inertial>
       <visual>
           <geometry>
-              <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_podest_link.stl"/>
+              <mesh filename="data/neobotixschunk/meshes/arm_podest_link.stl"/>
           </geometry>
           <material name="Schunk/LightGrey"/>
       </visual>
       <collision>
           <geometry>
-              <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_podest_link.stl"/>
+              <mesh filename="data/neobotixschunk/meshes/arm_podest_link.stl"/>
           </geometry>
       </collision>
   </link>
@@ -303,13 +303,13 @@
        </inertial>
        <visual>
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_1_link.stl"/>
+               <mesh filename="data/neobotixschunk/meshes/arm_1_link.stl"/>
            </geometry>
            <material name="Schunk/LightGrey"/>
        </visual>
        <collision>
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_1_link.stl"/>
+               <mesh filename="data/neobotixschunk/meshes/arm_1_link.stl"/>
            </geometry>
        </collision>
    </link>
@@ -333,13 +333,13 @@
         </inertial>
         <visual>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_2_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_2_link.stl"/>
             </geometry>
             <material name="Schunk/Black"/>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_2_link_collision.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_2_link_collision.stl"/>
             </geometry>
         </collision>
     </link>
@@ -363,13 +363,13 @@
        </inertial>
        <visual>
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_3_link.stl"/>
+               <mesh filename="data/neobotixschunk/meshes/arm_3_link.stl"/>
            </geometry>
            <material name="Schunk/LightGrey"/>
        </visual>
        <collision>
            <geometry>
-               <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_3_link_collision.stl"/>
+               <mesh filename="data/neobotixschunk/meshes/arm_3_link_collision.stl"/>
            </geometry>
        </collision>
    </link>
@@ -393,13 +393,13 @@
         </inertial>
         <visual>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_4_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_4_link.stl"/>
             </geometry>
             <material name="Schunk/Black"/>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_4_link_collision.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_4_link_collision.stl"/>
             </geometry>
         </collision>
     </link>
@@ -423,13 +423,13 @@
         </inertial>
         <visual>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_5_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_5_link.stl"/>
             </geometry>
             <material name="Schunk/LightGrey"/>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_5_link_collision.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_5_link_collision.stl"/>
             </geometry>
         </collision>
     </link>
@@ -453,13 +453,13 @@
         </inertial>
         <visual>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_6_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_6_link.stl"/>
             </geometry>
             <material name="Schunk/Black"/>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_6_link_collision.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_6_link_collision.stl"/>
             </geometry>
         </collision>
      </link>
@@ -483,13 +483,13 @@
         </inertial>
         <visual>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_7_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_7_link.stl"/>
             </geometry>
             <material name="Schunk/LightGrey"/>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_7_link.stl"/>
+                <mesh filename="data/neobotixschunk/meshes/arm_7_link.stl"/>
             </geometry>
         </collision>
     </link>

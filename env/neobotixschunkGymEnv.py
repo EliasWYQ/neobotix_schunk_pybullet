@@ -36,29 +36,28 @@ class NeobotixSchunkGymEnv(gym.Env):
 
     def __init__(self,
                  urdfRoot=parentdir,
-                 actionRepeat=50,
+                 actionRepeat=1,
                  isEnableSelfCollision=True,
                  isDiscrete=False,
                  renders=False,
-                 maxSteps=1000,
+                 maxSteps=1e3,
                  rewardtype='rdense',
                  action_dim=9,
                  randomInitial=False):
-        # print("init")
         self._p = p
-        self._action_dim = action_dim
         self._urdfRoot = urdfRoot
         self._actionRepeat = actionRepeat
         self._isEnableSelfCollision = isEnableSelfCollision
-        self._renders = renders
-        self._rewardtype = rewardtype
-        self._maxSteps = maxSteps
-        self._isEnableRandInit = randomInitial
         self._isDiscrete = isDiscrete
+        self._renders = renders
+        self._maxSteps = maxSteps
+        self._rewardtype = rewardtype
+        self._action_dim = action_dim
+        self._isEnableRandInit = randomInitial
         self._textID = None
         self._observation = []
         self._envStepCounter = 0
-        self._timeStep = 0.01
+        self._timeStep = 1. / 240.
         self._terminated = 0
         self._cam_dist = 4
         self._cam_yaw = 180
@@ -78,6 +77,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.reset()
         observation_dim = len(self.getExtendedObservation())
         observation_high = np.array([largeValObservation] * observation_dim)
+        # print('ob',observation_high)
 
         da = 1
         if self._isDiscrete:
@@ -96,14 +96,14 @@ class NeobotixSchunkGymEnv(gym.Env):
     def _reset(self):
         self._terminated = 0
         p.resetSimulation()
-        p.setTimeStep(self._timeStep)
-        self._p.setGravity(0, 0, -9.8)
         p.setPhysicsEngineParameter(numSolverIterations=150)
+        p.setTimeStep(self._timeStep)
+        p.setGravity(0, 0, -9.8)
 
         p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
 
         d_space_scale = len(str(abs(self._count))) * 0.5
-        # self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
+        self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
         print('scale here: ', self._count, d_space_scale, self._maxSteps)
         # d_space_scale = 1
         xpos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
@@ -136,7 +136,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         p.disconnect()
 
     def _step(self, action):
-        p_scale = 0.01
+        p_scale = 0.02
         action_scaled = np.multiply(action, self.action_bound*p_scale)
         for i in range(self._actionRepeat):
             self._neobotixschunk.applyAction(action_scaled)
@@ -149,7 +149,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         if self._renders:
             time.sleep(self._timeStep)
 
-        self._actions = action
+        self._actions = action_scaled
         reward = self._reward()
 
         return np.array(self._observation), reward, done, {}
@@ -164,7 +164,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
         self.base_dis = np.linalg.norm(bdisvec)
 
-        if self.ee_dis < 0.05:
+        if self.ee_dis < 0.1:
             self._terminated = 1
             self._count += 1
             print('terminate:', self._observation, self.ee_dis, self.goal)
@@ -179,7 +179,7 @@ class NeobotixSchunkGymEnv(gym.Env):
 
     def _reward(self):
         # rewards is accuracy of target position
-        # closestPoints = self._p.getClosestPoints(self._neobotixschunk.neobotixschunkUid, self.goalUid, 1000,self._neobotixschunk.neobotixschunkEndEffectorIndex,-1)
+        # closestPoints = p.getClosestPoints(self._neobotixschunk.neobotixschunkUid, self.goalUid, 1000,self._neobotixschunk.neobotixschunkEndEffectorIndex,-1)
         #
         #     numPt = len(closestPoints)
         #     reward = -1000
@@ -196,8 +196,8 @@ class NeobotixSchunkGymEnv(gym.Env):
             penalty = self._envStepCounter/self._maxSteps/2
 
         if self._rewardtype == 'rdense':
-            reward = (1-tau)*self.ee_dis + tau*self.base_dis - penalty
-            # reward = self.ee_dis
+            # reward = (1-tau)*self.ee_dis + tau*self.base_dis - penalty
+            reward = self.ee_dis
             reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
@@ -211,7 +211,7 @@ class NeobotixSchunkGymEnv(gym.Env):
             return np.array([])
         base_pos, orn = self._p.getBasePositionAndOrientation(self._neobotixschunk.neobotixschunkUid)
         text = 'goal position : ' + str(self.goal) + '. ee position : ' + str(self._observation[0:3])
-        self._textID = p.addUserDebugText(text, [0, -2, 2])
+        self._textID = self._p.addUserDebugText(text, [0, -2, 2])
         view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
             cameraTargetPosition=base_pos,
             distance=self._cam_dist,
@@ -224,8 +224,11 @@ class NeobotixSchunkGymEnv(gym.Env):
             nearVal=0.1, farVal=100.0)
         (_, _, px, _, _) = self._p.getCameraImage(
             width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
-            projectionMatrix=proj_matrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        rgb_array = np.array(px)
+            projectionMatrix=proj_matrix, renderer=self._p.ER_BULLET_HARDWARE_OPENGL)
+        # renderer=self._p.ER_TINY_RENDERER)
+        rgb_array = np.array(px, dtype=np.uint8)
+        rgb_array = np.reshape(rgb_array, (RENDER_HEIGHT, RENDER_WIDTH, 4))
+
         rgb_array = rgb_array[:, :, :3]
         return rgb_array
 
@@ -237,6 +240,9 @@ class NeobotixSchunkGymEnv(gym.Env):
                                    np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d),
                                    np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d)])
         return action
+
+    def set_fps(self, fps=30):
+        pyglet.clock.set_fps_limit(fps)
 
     if parse_version(gym.__version__) >= parse_version('0.9.6'):
         render = _render

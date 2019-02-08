@@ -23,11 +23,11 @@ class NeobotixSchunk:
                  randomInitial=False):
         self.urdfRootPath = urdfRootPath
         self.timeStep = timeStep
-        self.maxVelocity = 1.5
+        self.maxVelocity = 1.5  # unused yet
         self.maxForce = 100
-        self.useSimulation = 1
-        self.useNullSpace = 0
-        self.useOrientation = 1
+        self.useSimulation = 1  # unused yet
+        self.useNullSpace = 0  # unused yet
+        self.useOrientation = 1  # unused yet
         self.read_sim = 0
         self.randInitial =randomInitial
         self.j1_limit = np.pi  # limits for arm link 1, 3, 5
@@ -48,8 +48,8 @@ class NeobotixSchunk:
         # disable collision between link 10 and 12 : arm link 5 and 7
         p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, 10, 12, enableCollision=0)
 
-        # for i in range(p.getNumJoints(self.neobotixschunkUid)):
-            # print(p.getJointInfo(self.neobotixschunkUid, i))
+        for i in range(p.getNumJoints(self.neobotixschunkUid)):
+            print(p.getJointInfo(self.neobotixschunkUid, i))
 
         '''
         (0, b'base_footprint_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'base_link', (0.0, 0.0, 0.0),
@@ -123,12 +123,11 @@ class NeobotixSchunk:
         self.jointPosition = initial_joint_positions
 
         for i in self.wheelIndex:
-            p.resetJointState(self.neobotixschunkUid, i, initial_wheel_vel[i-1])
             p.setJointMotorControl2(self.neobotixschunkUid, i, p.VELOCITY_CONTROL,
                                     targetVelocity=initial_wheel_vel[i-1], force=self.maxForce)
 
         for j in self.armIndex:
-            p.resetJointState(self.neobotixschunkUid, j, initial_joint_positions[j-6])
+            # p.resetJointState(self.neobotixschunkUid, j, initial_joint_positions[j-6])
             p.setJointMotorControl2(self.neobotixschunkUid, j, p.POSITION_CONTROL,
                                     targetPosition=initial_joint_positions[j-6], force=self.maxForce)
 
@@ -138,12 +137,16 @@ class NeobotixSchunk:
     def getObservation(self):
         observation = []
         # get ee pose
-        state = p.getLinkState(self.neobotixschunkUid, self.neobotixschunkEndEffectorIndex)
+        state = p.getLinkState(bodyUniqueId=self.neobotixschunkUid,  linkIndex=self.neobotixschunkEndEffectorIndex,
+                               computeLinkVelocity=1,  computeForwardKinematics=1)
         pos = state[0]
         orn = state[1]
+        if len(state) > 6:
+            vel = state[6]
         euler = p.getEulerFromQuaternion(orn)
         observation.extend(list(pos))
         observation.extend(list(euler))
+        # observation.extend(list(vel))
         # get base pose
         basepos, baseorn = p.getBasePositionAndOrientation(self.neobotixschunkUid)
         baseeul = p.getEulerFromQuaternion(baseorn)

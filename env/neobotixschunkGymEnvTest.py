@@ -32,8 +32,9 @@ def main():
         action = []
         for actionId in actionIds:
             action.append(environment._p.readUserDebugParameter(actionId))
-        state, reward, done, info = environment.step(action)
-        #state, reward, done, info = environment.step(environment._sample_action())
+        # state, reward, done, info = environment.step(action)
+        state, reward, done, info = environment.step(environment._sample_action())
+        print('step', state, reward, done, info)
         obs = environment.getExtendedObservation()
 
 if __name__=="__main__":
