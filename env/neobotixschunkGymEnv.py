@@ -196,8 +196,8 @@ class NeobotixSchunkGymEnv(gym.Env):
             penalty = self._envStepCounter/self._maxSteps/2
 
         if self._rewardtype == 'rdense':
-            # reward = (1-tau)*self.ee_dis + tau*self.base_dis - penalty
-            reward = self.ee_dis
+            reward = (1-tau)*self.ee_dis + tau*self.base_dis - penalty
+            # reward = self.ee_dis
             reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
