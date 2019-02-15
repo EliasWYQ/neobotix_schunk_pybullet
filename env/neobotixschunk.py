@@ -48,8 +48,8 @@ class NeobotixSchunk:
         # disable collision between link 10 and 12 : arm link 5 and 7
         p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, 10, 12, enableCollision=0)
 
-        for i in range(p.getNumJoints(self.neobotixschunkUid)):
-            print(p.getJointInfo(self.neobotixschunkUid, i))
+        # for i in range(p.getNumJoints(self.neobotixschunkUid)):
+            # print(p.getJointInfo(self.neobotixschunkUid, i))
 
         '''
         (0, b'base_footprint_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'base_link', (0.0, 0.0, 0.0),

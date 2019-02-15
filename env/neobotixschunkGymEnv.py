@@ -206,7 +206,7 @@ class NeobotixSchunkGymEnv(gym.Env):
                 reward = 1
         return reward
 
-    def _render(self, mode='human', close=False):
+    def _render(self, mode='rgb_array', close=False):
         if mode != "rgb_array":
             return np.array([])
         base_pos, orn = self._p.getBasePositionAndOrientation(self._neobotixschunk.neobotixschunkUid)
