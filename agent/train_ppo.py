@@ -27,10 +27,11 @@ import datetime
 
 import gym
 import tensorflow as tf
-import os, inspect
+import os
+import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 from agent import tools
 from agent import configs
 from agent import utility
@@ -103,7 +104,9 @@ def train(config, env_processes):
   tf.reset_default_graph()
   if config.update_every % config.num_agents:
     tf.logging.warn('Number of agents should divide episodes per update.')
-  with tf.device('/cpu:0'):
+
+  with tf.device('/device:GPU:0'):
+  # with tf.device('/cpu:0'):
     batch_env = utility.define_batch_env(
         lambda: _create_environment(config),
         config.num_agents, env_processes)

@@ -99,7 +99,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         p.loadURDF(os.path.join(self._urdfRoot, "kukahusky_pybullet_ppo/data/plane.urdf"), [0, 0, 0])
 
         d_space_scale = len(str(abs(self.count)))*0.5
-        self._maxSteps = 1000 + 500*len(str(abs(self.count)))
+        #self._maxSteps = 1000 + 500*len(str(abs(self.count)))
         print('scale here: ', self.count, d_space_scale, self._maxSteps)
         # d_space_scale = 1
         xpos = random.uniform(-d_space_scale, d_space_scale) + 0.20

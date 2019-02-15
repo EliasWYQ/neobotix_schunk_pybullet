@@ -41,9 +41,9 @@ node [shape=ellipse, color=blue, fontcolor=blue];
 "arm_6_joint" -> "arm_6_link"
 "arm_6_link" -> "arm_7_joint" [label="xyz: 0 0 0 \nrpy: 1.5708 -5.55112e-17 1.5708"]
 "arm_7_joint" -> "arm_7_link"
-"arm_7_link" -> "grasping_frame_joint" [label="xyz: 0 0 0.1824 \nrpy: 0 -0 0"]
+"arm_7_link" -> "grasping_frame_joint" [label="xyz: 0 0 0.2463 \nrpy: 0 -0 0"]
 "grasping_frame_joint" -> "grasping_frame"
-"arm_7_link" -> "gripper_podest_joint" [label="xyz: 0 0 0.0824 \nrpy: 0 -0 0"]
+"arm_7_link" -> "gripper_podest_joint" [label="xyz: 0 0 0.1324 \nrpy: 0 -0 0"]
 "gripper_podest_joint" -> "gripper_podest_link"
 "gripper_podest_link" -> "gripper_palm_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
 "gripper_palm_joint" -> "gripper_palm_link"

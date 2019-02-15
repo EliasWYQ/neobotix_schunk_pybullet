@@ -14,7 +14,7 @@ os.sys.path.insert(0, parentdir)
 from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 
 def main():
-    environment = NeobotixSchunkGymEnv(renders=True, isDiscrete=False, maxSteps=1e5, action_dim=9)
+    environment = NeobotixSchunkGymEnv(renders=1, isDiscrete=False, maxSteps=1e5, action_dim=9)
     dv = 1
     actionIds = []
     actionIds.append(environment._p.addUserDebugParameter("basevelocity", -dv, dv, 0))
@@ -28,10 +28,12 @@ def main():
     actionIds.append(environment._p.addUserDebugParameter("arm_7_joint", -dv, dv, 0))
 
     done = 0
+    environment.reset()
+    environment.render()
     while not done:
         action = []
-        for actionId in actionIds:
-            action.append(environment._p.readUserDebugParameter(actionId))
+        # for actionId in actionIds:
+            # action.append(environment._p.readUserDebugParameter(actionId))
         # state, reward, done, info = environment.step(action)
         state, reward, done, info = environment.step(environment._sample_action())
         # print('step', state, reward, done, info)

@@ -44,7 +44,7 @@ class NeobotixSchunk:
 
     def reset(self):
         # load robot model
-        self.neobotixschunkUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d.urdf"), flags=p.URDF_USE_SELF_COLLISION)
+        self.neobotixschunkUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d_dev.urdf"), flags=p.URDF_USE_SELF_COLLISION)
         # disable collision between link 10 and 12 : arm link 5 and 7
         p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, 10, 12, enableCollision=0)
 
