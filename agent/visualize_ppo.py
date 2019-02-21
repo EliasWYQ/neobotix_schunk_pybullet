@@ -26,10 +26,11 @@ from __future__ import print_function
 
 import gym
 import tensorflow as tf
-import os, inspect
+import os
+import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 from agent import tools
 from agent import utility
 

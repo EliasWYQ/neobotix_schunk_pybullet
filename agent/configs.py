@@ -27,9 +27,11 @@ os.sys.path.insert(0,parentdir)
 from agent import ppo
 from agent import networks
 import tensorflow as tf
-
+import pybullet_envs
 from env.mmKukaHuskyGymEnv import MMKukaHuskyGymEnv
 from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
+from env.mmNeobotixSchunkGymEnv import MMNeobotixSchunkGymEnv
+from env.mKukaGymEnv import MKukaGymEnv
 
 def default():
   """Default configuration for PPO."""
@@ -45,8 +47,8 @@ def default():
       all=r'.*',
       policy=r'.*/policy/.*',
       value=r'.*/value/.*')
-  policy_layers = 200, 200
-  value_layers = 200, 200
+  policy_layers = 200, 100
+  value_layers = 200, 100
   init_mean_factor = 0.1
   init_logstd = -1
   # Optimization
@@ -55,9 +57,9 @@ def default():
   optimizer = tf.train.AdamOptimizer
   update_epochs_policy = 64
   update_epochs_value = 64
-  learning_rate = 3*1e-4
+  learning_rate = 3e-4
   # Losses
-  discount = 0.995
+  discount = 0.999
   kl_target = 1e-2
   kl_cutoff_factor = 2
   kl_cutoff_coef = 1000
@@ -121,8 +123,26 @@ def pybullet_racecar():
   steps = 1e7  # 10M
   return locals()
 
-def pybullet_neoschunk_reaching():
+def pybullet_kuka_reaching():
   """Configuration for Bullet Kukahusky mm task."""
+  locals().update(default())
+  env = functools.partial(MKukaGymEnv, isDiscrete=False, renders=False, action_dim=7, rewardtype='rdense')
+  # Environment
+  max_length = 1000
+  steps = 1e8  # 100M
+  return locals()
+
+def pybullet_neoschunk_mm_reaching():
+  """Configuration for Bullet Kukahusky mm task."""
+  locals().update(default())
+  env = functools.partial(MMNeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
+  # Environment
+  max_length = 1000
+  steps = 1e8  # 100M
+  return locals()
+
+def pybullet_neoschunk_reaching():
+  """Configuration for Bullet neo+schunk mm task."""
   locals().update(default())
   env = functools.partial(NeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
   # Environment
@@ -136,5 +156,5 @@ def pybullet_kukahusky_reaching():
   env = functools.partial(MMKukaHuskyGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
   # Environment
   max_length = 1000
-  steps = 3e8  # 100M
+  steps = 1e8  # 100M
   return locals()

@@ -14,6 +14,9 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
 URDF_USE_SELF_COLLISION = 1
+URDF_USE_SELF_COLLISION_EXCLUDE_PARENT = 1
+URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS = 1
+
 
 class NeobotixSchunk:
 
@@ -23,11 +26,11 @@ class NeobotixSchunk:
                  randomInitial=False):
         self.urdfRootPath = urdfRootPath
         self.timeStep = timeStep
-        self.maxVelocity = 1.5
-        self.maxForce = 100
-        self.useSimulation = 1
-        self.useNullSpace = 0
-        self.useOrientation = 1
+        self.maxVelocity = 1.5  # unused yet
+        self.maxForce = 1000
+        self.useSimulation = 1  # unused yet
+        self.useNullSpace = 0  # unused yet
+        self.useOrientation = 1  # unused yet
         self.read_sim = 0
         self.randInitial =randomInitial
         self.j1_limit = np.pi  # limits for arm link 1, 3, 5
@@ -36,27 +39,54 @@ class NeobotixSchunk:
         self.j7_limit = 170/180*np.pi  # limits for arm link 7
         self.jointPosition = []
         self.baseVelocity = []
-        self.wheelIndex = [1, 2]
-        self.armIndex = [6, 7, 8, 9, 10, 11, 12]
-        self.neobotixschunkEndEffectorIndex = 17
-        self.neobotixschunkUid = None
+        self.wheelIndex = []
+        self.armIndex = []
+        self.endEffectorIndex = []
+        self.checkCollisonIndex = []
+        # self.neobotixschunkUid = None
         self.reset()
 
     def reset(self):
         # load robot model
-        self.neobotixschunkUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d.urdf"), flags=p.URDF_USE_SELF_COLLISION)
-        # disable collision between link 10 and 12 : arm link 5 and 7
-        p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, 10, 12, enableCollision=0)
+        self.neobotixschunkUid = p.loadURDF(
+            os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d_devs.urdf"),
+            useFixedBase=False, flags=p.URDF_USE_SELF_COLLISION)
+        # print('uid', self.neobotixschunkUid)
+        jointNameToId = {}
+        for i in range(p.getNumJoints(self.neobotixschunkUid)):
+            jointInfo = p.getJointInfo(self.neobotixschunkUid, i)
+            jointNameToId[jointInfo[1].decode('UTF-8')] = jointInfo[0]
+            # print(jointInfo)
+        # print(jointNameToId)
 
-        # for i in range(p.getNumJoints(self.neobotixschunkUid)):
-            # print(p.getJointInfo(self.neobotixschunkUid, i))
+        Id_wheel_left_joint = jointNameToId['wheel_left_joint']
+        Id_wheel_right_joint = jointNameToId['wheel_right_joint']
+        Id_arm_1_joint = jointNameToId['arm_1_joint']
+        Id_arm_2_joint = jointNameToId['arm_2_joint']
+        Id_arm_3_joint = jointNameToId['arm_3_joint']
+        Id_arm_4_joint = jointNameToId['arm_4_joint']
+        Id_arm_5_joint = jointNameToId['arm_5_joint']
+        Id_arm_6_joint = jointNameToId['arm_6_joint']
+        Id_arm_7_joint = jointNameToId['arm_7_joint']
+        Id_grasping_frame_joint = jointNameToId['grasping_frame_joint']
+        Id_gripper_l_joint = jointNameToId['gripper_finger_left_joint']
+        Id_gripper_r_joint = jointNameToId['gripper_finger_right_joint']
+        Id_gripper_joint = jointNameToId['gripper_palm_joint']
+
+        self.wheelIndex = [Id_wheel_left_joint, Id_wheel_right_joint]
+        self.armIndex = [Id_arm_1_joint, Id_arm_2_joint, Id_arm_3_joint, Id_arm_4_joint, Id_arm_5_joint, Id_arm_6_joint, Id_arm_7_joint]
+        self.endEffectorIndex = Id_grasping_frame_joint
+        self.checkCollisonIndex = [Id_gripper_joint, Id_gripper_l_joint, Id_gripper_r_joint, Id_arm_3_joint, Id_arm_5_joint, Id_arm_6_joint]
+        # disable collision between link 10 and 12 : arm link 5 and 7
+        # p.setCollisionFilterPair(self.neobotixschunkUid, self.neobotixschunkUid, self.armIndex[4], self.armIndex[-1], enableCollision=0)
+        # p.createConstraint(self.neobotixschunkUid, -1, self.neobotixschunkUid, 5, p.JOINT_FIXED, [0, 0, 0], [0.19, 0, 0.5], [0., 0., 0])
 
         '''
-        (0, b'base_footprint_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'base_link', (0.0, 0.0, 0.0),
+        (0, b'base_footprint_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'chassis', (0.0, 0.0, 0.0),
          (0.0, 0.0, 0.0), (0.0, 0.0, 0.0, 1.0), -1)
         (1, b'wheel_left_joint', 0, 7, 6, 1, 0.0, 0.0, 0.0, -1.0, 500.0, 5.0, b'wheel_left_link', (0.0, 1.0, 0.0),
          (-0.1550000011920929, 0.2549999952316284, 0.12999999523162842), (0.0, 0.0, 0.0, 1.0), 0)
-        (2, b'wheel_right_joint', 0, 8, 7, 1, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'wheel_right_link', (0.0, 1.0, 0.0),
+        (2, b'wheel_right_joint', 0, 8, 7, 1, 0.0, 0.0, 0.0, -1.0, 500.0, 5.0, b'wheel_right_link', (0.0, 1.0, 0.0),
          (-0.1550000011920929, -0.2549999952316284, 0.12999999523162842), (0.0, 0.0, 0.0, 1.0), 0)
         (3, b'hanger_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'hanger', (0.0, 0.0, 0.0),
          (0.2549999952316284, 0.0, 0.10999999940395355), (0.0, 0.0, 0.0, 1.0), 0)
@@ -98,7 +128,8 @@ class NeobotixSchunk:
         (18, b'laserscanner_front_joint', 4, -1, -1, 0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, b'laserscanner_front_link',
          (0.0, 0.0, 0.0), (-0.38999998569488525, 0.0, 0.2809999883174896),
          (0.7073880263692225, -0.7068249755751145, -0.0005628267118611763, -0.0005632750548569806), 0)
-        '''
+         '''
+
         # reset arm joint positions and controllers
         if self.randInitial:
             j1 = np.random.uniform(-self.j1_limit, self.j1_limit)
@@ -122,15 +153,17 @@ class NeobotixSchunk:
         self.baseVelocity = np.zeros(len(self.wheelIndex))
         self.jointPosition = initial_joint_positions
 
-        for i in self.wheelIndex:
-            p.resetJointState(self.neobotixschunkUid, i, initial_wheel_vel[i-1])
-            p.setJointMotorControl2(self.neobotixschunkUid, i, p.VELOCITY_CONTROL,
-                                    targetVelocity=initial_wheel_vel[i-1], force=self.maxForce)
+        for i in range(len(self.wheelIndex)):
+            p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.wheelIndex[i], controlMode=p.VELOCITY_CONTROL,
+                                    targetVelocity=initial_wheel_vel[i], force=self.maxForce)
 
-        for j in self.armIndex:
-            p.resetJointState(self.neobotixschunkUid, j, initial_joint_positions[j-6])
-            p.setJointMotorControl2(self.neobotixschunkUid, j, p.POSITION_CONTROL,
-                                    targetPosition=initial_joint_positions[j-6], force=self.maxForce)
+        for j in range(len(self.armIndex)):
+            # p.resetJointState(self.neobotixschunkUid, self.armIndex[j], initial_joint_positions[j])
+            p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.armIndex[j], controlMode=p.POSITION_CONTROL,
+                                    targetPosition=initial_joint_positions[j], force=self.maxForce)
+
+    def getActionDimension(self):
+        return len(self.armIndex)+len(self.wheelIndex)
 
     def getObservationDimension(self):
         return len(self.getObservation())
@@ -138,12 +171,16 @@ class NeobotixSchunk:
     def getObservation(self):
         observation = []
         # get ee pose
-        state = p.getLinkState(self.neobotixschunkUid, self.neobotixschunkEndEffectorIndex)
+        state = p.getLinkState(bodyUniqueId=self.neobotixschunkUid,  linkIndex=self.endEffectorIndex,
+                               computeLinkVelocity=1,  computeForwardKinematics=1)
         pos = state[0]
         orn = state[1]
+        if len(state) > 6:
+            vel = state[6]
         euler = p.getEulerFromQuaternion(orn)
         observation.extend(list(pos))
         observation.extend(list(euler))
+        # observation.extend(list(vel))
         # get base pose
         basepos, baseorn = p.getBasePositionAndOrientation(self.neobotixschunkUid)
         baseeul = p.getEulerFromQuaternion(baseorn)
@@ -195,16 +232,16 @@ class NeobotixSchunk:
         # vel relations from data sheet and
         # https://github.com/neobotix/neo_kinematics_differential/blob/master/common/src/DiffDrive2WKinematics.cpp
         # scale 0.01 from urdf
-        wheelVelR = (self.baseVelocity[0] + 0.2535 * self.baseVelocity[1]) / 0.13 * 0.01
-        wheelVelL = (self.baseVelocity[0] - 0.2535 * self.baseVelocity[1]) / 0.13 * 0.01
+        wheelVelR = (self.baseVelocity[0] + 0.2535 * self.baseVelocity[1]) / 0.13 #* 0.01
+        wheelVelL = (self.baseVelocity[0] - 0.2535 * self.baseVelocity[1]) / 0.13 #* 0.01
         wheelVel = np.array([wheelVelL, wheelVelR])
 
         self.jointPosition += djoint
         self.jointPosition = self.check_joint_states(self.jointPosition, djoint)
 
         for motor_wheel in self.wheelIndex:
-            p.setJointMotorControl2(self.neobotixschunkUid, motor_wheel, p.VELOCITY_CONTROL,
-                                    targetVelocity=wheelVel[motor_wheel-1], force=self.maxForce)
+            p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=motor_wheel, controlMode=p.VELOCITY_CONTROL,
+                                    targetVelocity=wheelVel[motor_wheel-self.wheelIndex[0]], force=self.maxForce)
         for motor_arm in self.armIndex:
-            p.setJointMotorControl2(self.neobotixschunkUid, motor_arm, p.POSITION_CONTROL,
-                                    targetPosition=self.jointPosition[motor_arm-6], force=self.maxForce)
+            p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=motor_arm, controlMode=p.POSITION_CONTROL,
+                                    targetPosition=self.jointPosition[motor_arm-self.armIndex[0]], force=self.maxForce)

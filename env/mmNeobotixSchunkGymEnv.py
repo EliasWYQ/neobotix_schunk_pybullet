@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet as p
-from env import mmKukaHusky
+from env import mmNeobotixSchunk
 import random
 from pkg_resources import parse_version
 import pyglet
@@ -22,7 +22,7 @@ RENDER_WIDTH = 960
 
 
 
-class MMKukaHuskyGymEnv(gym.Env):
+class MMNeobotixSchunkGymEnv(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 50
@@ -99,7 +99,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
 
         d_space_scale = len(str(abs(self.count)))*0.5
-        self._maxSteps = 1000 + 500*len(str(abs(self.count)))
+        # self._maxSteps = 1000 + 500*len(str(abs(self.count)))
         print('scale here: ', self.count, d_space_scale, self._maxSteps)
         # d_space_scale = 1
         xpos = random.uniform(-d_space_scale, d_space_scale) + 0.20
@@ -108,7 +108,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         self.goal = [xpos, ypos, zpos]
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), xpos, ypos, zpos)
 
-        self._mmkukahusky = mmKukaHusky.MMKukaHusky(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
+        self._mmneoschunk = mmNeobotixSchunk.MMNeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
         self._envStepCounter = 0
         p.stepSimulation()
         self._observation = self.getExtendedObservation()
@@ -125,7 +125,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         return [seed]
 
     def getExtendedObservation(self):
-        observation = self._mmkukahusky.getObservation()
+        observation = self._mmneoschunk.getObservation()
         observation.extend(self.goal)
 
         self._observation = observation
@@ -134,9 +134,9 @@ class MMKukaHuskyGymEnv(gym.Env):
 
     def _step(self, action):
         #if self._action_dim == 5:
-        action_scaled = np.multiply(action, self.action_bound*0.05)
+        action_scaled = np.multiply(action, self.action_bound*0.01)
         for i in range(self._actionRepeat):
-            self._mmkukahusky.applyAction(action_scaled)
+            self._mmneoschunk.applyAction(action_scaled)
             p.stepSimulation()
             done = self._termination()
             if done:
@@ -152,7 +152,7 @@ class MMKukaHuskyGymEnv(gym.Env):
     def _render(self, mode="rgb_array", close=False):
         if mode != "rgb_array":
             return np.array([])
-        base_pos, orn = self._p.getBasePositionAndOrientation(self._mmkukahusky.huskyUid)
+        base_pos, orn = self._p.getBasePositionAndOrientation(self._mmneoschunk.neoUID)
         view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
             cameraTargetPosition=base_pos,
             distance=self._cam_dist,
@@ -188,7 +188,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         if self.ee_dis < 0.05:  # (actualEndEffectorPos[2] <= -0.43):
             self.terminated = 1
             self.count += 1
-            print('terminate:', self._observation, self.ee_dis,self.goal)
+            print('terminate:', self._observation, self.ee_dis, self.goal)
             # [-0.6356161906186968, 0.4866813952531867, 1.1774765260184725, -0.07900755219115511, 0.013299602972714528, -0.4413131443405152, -0.6369316683047506, 0.4457577316748338, 1.0863575155494019]
             # 0.09989569956249031 [-0.6369316683047506, 0.4457577316748338, 1.0863575155494019]
             return True

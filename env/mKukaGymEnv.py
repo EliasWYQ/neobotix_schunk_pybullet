@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet as p
-from env import mmKukaHusky
+from env import mKuka
 import random
 from pkg_resources import parse_version
 import pyglet
@@ -22,7 +22,7 @@ RENDER_WIDTH = 960
 
 
 
-class MMKukaHuskyGymEnv(gym.Env):
+class MKukaGymEnv(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],
         'video.frames_per_second': 50
@@ -35,7 +35,7 @@ class MMKukaHuskyGymEnv(gym.Env):
                  renders=False,
                  isDiscrete=False,
                  maxSteps=1e3,
-                 action_dim=9,
+                 action_dim=7,
                  rewardtype='rdense',
                  randomInitial=False):
         self._isDiscrete = isDiscrete
@@ -79,7 +79,7 @@ class MMKukaHuskyGymEnv(gym.Env):
 
         da = 1
         if (self._isDiscrete):
-            self.action_space = spaces.Discrete(9)
+            self.action_space = spaces.Discrete(7)
         else:
             # husky twist limits is from https://github.com/husky/husky/blob/kinetic-devel/husky_control/config/control.yaml
             action_high = np.ones(self._action_dim)*da
@@ -98,17 +98,17 @@ class MMKukaHuskyGymEnv(gym.Env):
         p.setGravity(0, 0, -9.8)
         p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
 
-        d_space_scale = len(str(abs(self.count)))*0.5
+        d_space_scale = len(str(abs(self.count)))*0.4
         self._maxSteps = 1000 + 500*len(str(abs(self.count)))
         print('scale here: ', self.count, d_space_scale, self._maxSteps)
         # d_space_scale = 1
-        xpos = random.uniform(-d_space_scale, d_space_scale) + 0.20
-        ypos = random.uniform(-d_space_scale, d_space_scale) + 0.35
-        zpos = random.uniform(0.5, 1.5)
+        xpos = random.uniform(-d_space_scale, d_space_scale)
+        ypos = random.uniform(-d_space_scale, d_space_scale)
+        zpos = random.uniform(0.2, 1.2)
         self.goal = [xpos, ypos, zpos]
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), xpos, ypos, zpos)
 
-        self._mmkukahusky = mmKukaHusky.MMKukaHusky(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
+        self._mkuka = mKuka.MKuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
         self._envStepCounter = 0
         p.stepSimulation()
         self._observation = self.getExtendedObservation()
@@ -125,7 +125,7 @@ class MMKukaHuskyGymEnv(gym.Env):
         return [seed]
 
     def getExtendedObservation(self):
-        observation = self._mmkukahusky.getObservation()
+        observation = self._mkuka.getObservation()
         observation.extend(self.goal)
 
         self._observation = observation
@@ -134,9 +134,9 @@ class MMKukaHuskyGymEnv(gym.Env):
 
     def _step(self, action):
         #if self._action_dim == 5:
-        action_scaled = np.multiply(action, self.action_bound*0.05)
+        action_scaled = np.multiply(action, self.action_bound*0.01)
         for i in range(self._actionRepeat):
-            self._mmkukahusky.applyAction(action_scaled)
+            self._mkuka.applyAction(action_scaled)
             p.stepSimulation()
             done = self._termination()
             if done:
@@ -152,7 +152,7 @@ class MMKukaHuskyGymEnv(gym.Env):
     def _render(self, mode="rgb_array", close=False):
         if mode != "rgb_array":
             return np.array([])
-        base_pos, orn = self._p.getBasePositionAndOrientation(self._mmkukahusky.huskyUid)
+        base_pos, orn = self._p.getBasePositionAndOrientation(self._mkuka.kukaUid)
         view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
             cameraTargetPosition=base_pos,
             distance=self._cam_dist,
@@ -182,9 +182,6 @@ class MMKukaHuskyGymEnv(gym.Env):
         edisvec = [x - y for x, y in zip(self._observation[0:3], self.goal)]
         self.ee_dis = np.linalg.norm(edisvec)
 
-        bdisvec = [x2 - y2 for x2, y2 in zip(self._observation[6:8], self.goal[0:2])]
-        self.base_dis = np.linalg.norm(bdisvec)
-
         if self.ee_dis < 0.05:  # (actualEndEffectorPos[2] <= -0.43):
             self.terminated = 1
             self.count += 1
@@ -198,15 +195,10 @@ class MMKukaHuskyGymEnv(gym.Env):
         delta_dis = self.ee_dis - self._dis_vor
         self._dis_vor = self.ee_dis
 
-        tau = (self.ee_dis/self.dis_init)**2
-        if tau > 1:
-            penalty = (1-tau)*self.ee_dis + self._envStepCounter/self._maxSteps/2
-        else:
-            penalty = self._envStepCounter/self._maxSteps/2
+
         #print('tau', self.dis_init, tau, penalty)
         if self._rewardtype == 'rdense':
-            reward = (1-tau)*self.ee_dis + tau*self.base_dis - penalty
-            # reward = self.ee_dis
+            reward = self.ee_dis
             reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
@@ -225,11 +217,11 @@ class MMKukaHuskyGymEnv(gym.Env):
                 action = np.random.choice(list(range(3)))
         else:
         '''
-            if (self._action_dim == 5):
+            if (self._action_dim == 3):
                 action = np.array(
                     [random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01),
                      random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01)])
-            elif (self._action_dim == 9):
+            elif (self._action_dim == 7):
                 action = np.array([random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01),
                                    random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01),
                                    random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01)])
