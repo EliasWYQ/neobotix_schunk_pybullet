@@ -53,7 +53,6 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._rewardtype = rewardtype
         self._action_dim = action_dim
         self._isEnableRandInit = randomInitial
-        self._textID = None
         self._observation = []
         self._envStepCounter = 0
         self._timeStep = 1. / 240.
@@ -63,6 +62,8 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._cam_pitch = -40
         self._dis_vor = 100
         self._count = 0
+        self.dis_init = 100
+        self.goal = []
         self._p = p
 
         if self._renders:
@@ -111,11 +112,9 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), basePosition=self.goal)
         self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
         self._envStepCounter = 0
-        time.sleep(self._timeStep)
         p.stepSimulation()
         self._observation = self.getExtendedObservation()
         # print(p.getContactPoints())
-
         eedisvec = np.subtract(self._observation[0:3], self.goal)
         self.dis_init = np.linalg.norm(eedisvec)
 
@@ -149,7 +148,7 @@ class NeobotixSchunkGymEnv(gym.Env):
             self._envStepCounter += 1
         if self._renders:
             time.sleep(self._timeStep)
-            time.sleep(self._timeStep)
+
         self._actions = action_scaled
         reward = self._reward()
         return np.array(self._observation), reward, done, {}
@@ -198,10 +197,10 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.base_dis = np.linalg.norm(bdisvec)
 
         if self.check_collision_self():
-            print('collision!')
+            print('ACHTUNG : collision!')
             return True
 
-        if self.ee_dis < 0.1:
+        if self.ee_dis < 0.05:
             self._terminated = 1
             self._count += 1
             print('terminate:', self._observation, self.ee_dis, self.goal)
@@ -233,8 +232,8 @@ class NeobotixSchunkGymEnv(gym.Env):
             penalty = self._envStepCounter/self._maxSteps/2
 
         if self._rewardtype == 'rdense':
-            reward = (1-tau)*self.ee_dis + tau*self.base_dis #- penalty
-            # reward = self.ee_dis
+            # reward = (1-tau)*self.ee_dis + tau*self.base_dis #- penalty
+            reward = self.ee_dis
             reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:

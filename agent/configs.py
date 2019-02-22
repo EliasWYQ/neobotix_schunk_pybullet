@@ -124,7 +124,7 @@ def pybullet_racecar():
   return locals()
 
 def pybullet_kuka_reaching():
-  """Configuration for Bullet Kukahusky mm task."""
+  """Configuration for Bullet single Kuka task."""
   locals().update(default())
   env = functools.partial(MKukaGymEnv, isDiscrete=False, renders=False, action_dim=7, rewardtype='rdense')
   # Environment
@@ -133,7 +133,7 @@ def pybullet_kuka_reaching():
   return locals()
 
 def pybullet_neoschunk_mm_reaching():
-  """Configuration for Bullet Kukahusky mm task."""
+  """Configuration for Bullet seperate neo+schunk mm task."""
   locals().update(default())
   env = functools.partial(MMNeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
   # Environment

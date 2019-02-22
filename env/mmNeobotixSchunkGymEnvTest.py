@@ -29,14 +29,14 @@ def main():
     t=0
     done = False
     while (not done):
-        # env.reset()
+        env.reset()
         # env.render()
         action = []
         for motorId in motorsIds:
             action.append(env._p.readUserDebugParameter(motorId))
         # print('action。 ', action)
-        #state, reward, done, info = env.step(action)
-        state, reward, done, info = env.step(env._sample_action())
+        state, reward, done, info = env.step(action)
+        # state, reward, done, info = env.step(env._sample_action())
         disc_total_rew += reward * 0.9**t
         t+=1
 
