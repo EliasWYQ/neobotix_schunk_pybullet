@@ -49,7 +49,7 @@ class NeobotixSchunk:
     def reset(self):
         # load robot model
         self.neobotixschunkUid = p.loadURDF(
-            os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d_devs.urdf"),
+            os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/neobotixschunk/mp500lwa4d.urdf"),
             useFixedBase=False, flags=p.URDF_USE_SELF_COLLISION)
         # print('uid', self.neobotixschunkUid)
         jointNameToId = {}
