@@ -30,7 +30,7 @@ def main():
 
     done = 0
     while not done:
-        # environment.reset()
+        #environment.reset()
         action = []
         for actionId in actionIds:
             action.append(environment._p.readUserDebugParameter(actionId))

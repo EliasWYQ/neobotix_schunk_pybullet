@@ -5,6 +5,12 @@ neobotix model meshed source : https://github.com/neobotix/neo_mp_500
 model modified by Y. Zhang and J. Su.
 '''
 
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0, parentdir)
+
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -13,12 +19,8 @@ import pybullet as p
 import time
 from pkg_resources import parse_version
 import pyglet
+
 from env import neobotixschunk
-import os
-import inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
 
 pyglet.clock.set_fps_limit(10000)
 
@@ -69,12 +71,25 @@ class NeobotixSchunkGymEnv(gym.Env):
         if self._renders:
             cid = p.connect(p.SHARED_MEMORY)
             if cid < 0:
-                p.connect(p.GUI)
+                cid = p.connect(p.GUI)
             p.resetDebugVisualizerCamera(self._cam_dist, self._cam_yaw, self._cam_pitch, [0.52, -0.2, -0.33])
         else:
             p.connect(p.DIRECT)
             # p.setRealTimeSimulation(1)
         self.seed()
+
+        p.resetSimulation()
+        p.setPhysicsEngineParameter(numSolverIterations=150)#, enableFileCaching=0)
+        p.setTimeStep(self._timeStep)
+        p.setGravity(0, 0, -9.8)
+
+        p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"))
+        self.goal = np.zeros(3)
+        self.origoal = np.array([0, 0, 0, 1])
+
+        self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), basePosition=self.goal)
+        self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
+
         self.reset()
         observation_dim = len(self.getExtendedObservation())
         observation_high = np.array([largeValObservation] * observation_dim)
@@ -92,25 +107,19 @@ class NeobotixSchunkGymEnv(gym.Env):
 
     def reset(self):
         self._terminated = 0
-        p.resetSimulation()
-        p.setPhysicsEngineParameter(numSolverIterations=150)#, enableFileCaching=0)
-        p.setTimeStep(self._timeStep)
-        p.setGravity(0, 0, -9.8)
-
         # p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI1.mp4")
-        p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, -0.001])
 
         d_space_scale = len(str(abs(self._count))) * 0.5
         self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
-        print('scale here: ', self._count, d_space_scale, self._maxSteps)
+        print('Scale here: ', self._count, d_space_scale, self._maxSteps)
         #d_space_scale = 3
         xpos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
         ypos = np.random.uniform(-d_space_scale, d_space_scale)
         zpos = np.random.uniform(0.5, 1.5)
-        self.goal = np.array([xpos, ypos, zpos])
 
-        self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), basePosition=self.goal)
-        self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
+        self.goal = np.array([xpos, ypos, zpos])
+        p.resetBasePositionAndOrientation(self.goalUid, self.goal, self.origoal)
+
         self._envStepCounter = 0
         p.stepSimulation()
         self._observation = self.getExtendedObservation()
@@ -203,7 +212,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         if self.ee_dis < 0.05:
             self._terminated = 1
             self._count += 1
-            print('terminate:', self._observation, self.ee_dis, self.goal)
+            print('Terminate:', self._observation, self.ee_dis, self.goal)
             # terminate:
             # [0.31351114847553907, -0.7641432674513139, 1.1630955439527204, 0.0017817470162401388, 0.8550287805124699, -1.0684642243321618,
             # -0.00832275367860193, -0.1757742594867312, -0.006658387818796845, 0.0010982953800254935, -0.014004384097023394, -1.0770997673085894,
