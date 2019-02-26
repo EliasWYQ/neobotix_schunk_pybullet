@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="model" default="$(find neobotix_schunk_pybullet)/data/neobotixschunk/mp500lwa4d_devs.urdf"/>
+  <arg name="model" default="$(find neobotix_schunk_pybullet)/data/neobotixschunk/mp500lwa4d.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find neobotix_schunk_pybullet)/rviz/model.rviz" />
 

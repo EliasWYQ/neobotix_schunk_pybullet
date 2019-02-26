@@ -1,7 +1,7 @@
 from mmNeobotixSchunkGymEnv import MMNeobotixSchunkGymEnv
 
 def main():
-    env = MMNeobotixSchunkGymEnv(renders=True, isDiscrete=False, action_dim=9, rewardtype='rdense', randomInitial=False, maxSteps=1e8)
+    env = MMNeobotixSchunkGymEnv(renders=True, isDiscrete=False, action_dim=5, rewardtype='rdense', randomInitial=False, maxSteps=1e8)
 
     motorsIds = []
     dv = 1
@@ -24,12 +24,12 @@ def main():
     # motorsIds.append(env._p.addUserDebugParameter("base_angular_speed", -2*bs, 2*bs, 0))
     motorsIds.append(env._p.addUserDebugParameter("base_linear_speed", -dv, dv, 0))
     motorsIds.append(env._p.addUserDebugParameter("base_angular_speed", -dv, dv, 0))
-
+    # env.reset()
     disc_total_rew=0
     t=0
     done = False
     while (not done):
-        env.reset()
+        #
         # env.render()
         action = []
         for motorId in motorsIds:

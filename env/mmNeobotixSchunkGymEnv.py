@@ -104,9 +104,9 @@ class MMNeobotixSchunkGymEnv(gym.Env):
         # d_space_scale = 1
         xpos = random.uniform(-d_space_scale, d_space_scale) + 0.20
         ypos = random.uniform(-d_space_scale, d_space_scale) + 0.35
-        zpos = random.uniform(0.5, 1.5)
+        zpos = random.uniform(0.5, 1.4)
         self.goal = [xpos, ypos, zpos]
-        self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), xpos, ypos, zpos)
+        self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), self.goal)
 
         self._mmneoschunk = mmNeobotixSchunk.MMNeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
         self._envStepCounter = 0
@@ -133,8 +133,8 @@ class MMNeobotixSchunkGymEnv(gym.Env):
         return self._observation
 
     def _step(self, action):
-        #if self._action_dim == 5:
-        action_scaled = np.multiply(action, self.action_bound*0.01)
+        p_scale = 0.01
+        action_scaled = np.multiply(action, self.action_bound*p_scale)
         for i in range(self._actionRepeat):
             self._mmneoschunk.applyAction(action_scaled)
             p.stepSimulation()
@@ -144,7 +144,7 @@ class MMNeobotixSchunkGymEnv(gym.Env):
             self._envStepCounter += 1
         if self._renders:
             time.sleep(self._timeStep)
-        self._actions = action
+        self._actions = action_scaled
         reward = self._reward()
 
         return self._observation, reward, done, {}

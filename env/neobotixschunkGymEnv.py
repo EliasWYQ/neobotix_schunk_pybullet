@@ -4,7 +4,6 @@ schunk model meshes source : https://github.com/ipa320/schunk_modular_robotics
 neobotix model meshed source : https://github.com/neobotix/neo_mp_500
 model modified by Y. Zhang and J. Su.
 '''
-
 import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -58,6 +57,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._observation = []
         self._envStepCounter = 0
         self._timeStep = 1. / 240.
+        self.r_penalty = 0
         self._terminated = 0
         self._cam_dist = 4
         self._cam_yaw = 180
@@ -106,19 +106,21 @@ class NeobotixSchunkGymEnv(gym.Env):
         # help(neobotixschunk)
 
     def reset(self):
+        self.r_penalty = 0
         self._terminated = 0
         # p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI1.mp4")
 
-        d_space_scale = len(str(abs(self._count))) * 0.5
-        self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
+        # d_space_scale = len(str(abs(self._count))) * 0.5
+        # self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
+        d_space_scale = 1
         print('Scale here: ', self._count, d_space_scale, self._maxSteps)
-        #d_space_scale = 3
         xpos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
         ypos = np.random.uniform(-d_space_scale, d_space_scale)
         zpos = np.random.uniform(0.5, 1.5)
 
         self.goal = np.array([xpos, ypos, zpos])
         p.resetBasePositionAndOrientation(self.goalUid, self.goal, self.origoal)
+        self._neobotixschunk.reset()
 
         self._envStepCounter = 0
         p.stepSimulation()
@@ -190,8 +192,9 @@ class NeobotixSchunkGymEnv(gym.Env):
     def check_collision_self(self):
         for i in self._neobotixschunk.checkCollisonIndex:
             dcontact = p.getContactPoints(self._neobotixschunk.neobotixschunkUid, self._neobotixschunk.neobotixschunkUid, i)
-            # print(dcontact)
+
             if len(dcontact):
+                # print(dcontact)
                 return True
         return False
 
@@ -206,11 +209,14 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.base_dis = np.linalg.norm(bdisvec)
 
         if self.check_collision_self():
+            self._terminated = 1
+            self.r_penalty = -10
             print('ACHTUNG : collision!')
             return True
 
-        if self.ee_dis < 0.05:
+        if self.ee_dis < 0.1:
             self._terminated = 1
+            self.r_penalty = 100
             self._count += 1
             print('Terminate:', self._observation, self.ee_dis, self.goal)
             # terminate:
@@ -242,8 +248,7 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         if self._rewardtype == 'rdense':
             # reward = (1-tau)*self.ee_dis + tau*self.base_dis #- penalty
-            reward = self.ee_dis
-            reward = -reward
+            reward = self.ee_dis + self.r_penalty
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
                 reward = 0

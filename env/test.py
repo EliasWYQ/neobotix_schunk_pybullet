@@ -41,10 +41,18 @@ def dee(t):
     de = (1-t/N)*d0 + np.random.uniform(-0.1, 0.1)
     return de
 
+def test_if(a):
+    if a == 1:
+        return a
+    elif a == 2:
+        return a
+    else:
+        return 3
+    return False
+
 for t in range(N):
     de = dee(t)
     d0, de, dm, p = penalty(t, de)
-
 
     # print(de,dm,p)
     tau = de/d0
@@ -72,3 +80,4 @@ plt.plot(ddee, 'bo-', ddbase, 'g*-')
 plt.show()
 print(returns)
 #plt.plot(returns)
+print(test_if(3))

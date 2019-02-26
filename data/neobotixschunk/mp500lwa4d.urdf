@@ -392,7 +392,7 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_6_link_collision.stl"/>
+        <mesh filename="package://neobotix_schunk_pybullet/data/neobotixschunk/meshes/arm_6_link_collision.stl" scale="0.9 0.9 0.9"/>
       </geometry>
     </collision>
   </link>
@@ -481,12 +481,12 @@
       </geometry>
     </collision>
   </link>
-  <joint name="gripper_finger_left_joint" type="prismatic">
+  <joint name="gripper_finger_left_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 -0.005 0.1139"/>
     <parent link="gripper_palm_link"/>
     <child link="gripper_finger_left_link"/>
     <axis xyz="0 1 0"/>
-    <limit effort="10" lower="-0.0301" upper="-0.005" velocity="0.041"/>
+    <limit effort="10" lower="-0.0301" upper="-0.01" velocity="0.041"/>
     <dynamics damping="0.08" friction="0.08"/>
   </joint>
   <link name="gripper_finger_left_link">
@@ -504,17 +504,18 @@
     </visual>
     <collision>
       <geometry>
-        <box size="0.03 0.01 0.08"/>
+        <!--box size="0.03 0.01 0.08"/-->
+        <box size="0.03 0.005 0.08"/>
       </geometry>
     </collision>
   </link>
-  <joint name="gripper_finger_right_joint" type="prismatic">
+  <joint name="gripper_finger_right_joint" type="fixed">
     <origin rpy="-0 0 0" xyz="0 0.005 0.1139"/>
     <parent link="gripper_palm_link"/>
     <child link="gripper_finger_right_link"/>
     <axis xyz="0 1 0"/>
     <!--mimic joint="gripper_finger_left_joint" multiplier="1" offset="0"/>-->
-    <limit effort="10" lower="0.005" upper="0.0301" velocity="0.041"/>
+    <limit effort="10" lower="0.01" upper="0.0301" velocity="0.041"/>
     <dynamics damping="0.08" friction="0.08"/>
   </joint>
   <link name="gripper_finger_right_link">
@@ -532,7 +533,8 @@
     </visual>
     <collision>
       <geometry>
-        <box size="0.03 0.01 0.08"/>
+        <!--box size="0.03 0.01 0.08"/-->
+        <box size="0.03 0.005 0.08"/>
       </geometry>
     </collision>
   </link>
