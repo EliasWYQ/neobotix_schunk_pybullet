@@ -98,13 +98,13 @@ class MKukaGymEnv(gym.Env):
         p.setGravity(0, 0, -9.8)
         p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
 
-        d_space_scale = len(str(abs(self.count)))*0.4
-        self._maxSteps = 1000 + 500*len(str(abs(self.count)))
+        # d_space_scale = len(str(abs(self.count)))*0.4
+        d_space_scale = 1
+        # self._maxSteps = 1000 + 500*len(str(abs(self.count)))
         print('scale here: ', self.count, d_space_scale, self._maxSteps)
-        # d_space_scale = 1
         xpos = random.uniform(-d_space_scale, d_space_scale)
         ypos = random.uniform(-d_space_scale, d_space_scale)
-        zpos = random.uniform(0.2, 1.2)
+        zpos = random.uniform(1, 2)
         self.goal = [xpos, ypos, zpos]
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), xpos, ypos, zpos)
 
@@ -144,7 +144,7 @@ class MKukaGymEnv(gym.Env):
             self._envStepCounter += 1
         if self._renders:
             time.sleep(self._timeStep)
-        self._actions = action
+        self._actions = action_scaled
         reward = self._reward()
 
         return self._observation, reward, done, {}

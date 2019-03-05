@@ -79,7 +79,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.seed()
 
         p.resetSimulation()
-        p.setPhysicsEngineParameter(numSolverIterations=150)#, enableFileCaching=0)
+        p.setPhysicsEngineParameter(numSolverIterations=150)  # , enableFileCaching=0)
         p.setTimeStep(self._timeStep)
         p.setGravity(0, 0, -9.8)
 
@@ -91,8 +91,8 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
 
         self.reset()
-        observation_dim = len(self.getExtendedObservation())
-        observation_high = np.array([largeValObservation] * observation_dim)
+        self.observation_dim = len(self.getExtendedObservation())
+        observation_high = np.array([largeValObservation] * self.observation_dim)
         # print('ob',observation_high)
         daction = 1
         if self._isDiscrete:
@@ -124,6 +124,8 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         self._envStepCounter = 0
         p.stepSimulation()
+        time.sleep(self._timeStep)
+        time.sleep(self._timeStep)
         self._observation = self.getExtendedObservation()
         # print(p.getContactPoints())
         eedisvec = np.subtract(self._observation[0:3], self.goal)
@@ -148,6 +150,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         return self._observation
 
     def step(self, action):
+        self.r_penalty = 0
         p_scale = 0.01
         action_scaled = np.multiply(action, self.action_bound*p_scale)
         for i in range(self._actionRepeat):
@@ -210,13 +213,13 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         if self.check_collision_self():
             self._terminated = 1
-            self.r_penalty = -10
+            self.r_penalty = -1e5
             print('ACHTUNG : collision!')
             return True
 
         if self.ee_dis < 0.1:
             self._terminated = 1
-            self.r_penalty = 100
+            self.r_penalty = 1e5
             self._count += 1
             print('Terminate:', self._observation, self.ee_dis, self.goal)
             # terminate:
@@ -242,13 +245,14 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         tau = (self.ee_dis/self.dis_init)**2
         if tau > 1:
-            penalty = (1-tau)*self.ee_dis + self._envStepCounter/self._maxSteps/2
+            penalty = (1-tau)*self.ee_dis - self.dis_init #+ self._envStepCounter/self._maxSteps/2
         else:
-            penalty = self._envStepCounter/self._maxSteps/2
+            penalty = 0 #self._envStepCounter/self._maxSteps/2
 
         if self._rewardtype == 'rdense':
-            # reward = (1-tau)*self.ee_dis + tau*self.base_dis #- penalty
-            reward = self.ee_dis + self.r_penalty
+            # reward = -(1-tau)*self.ee_dis - tau*self.base_dis + self.r_penalty + penalty
+            reward = -self.ee_dis + self.r_penalty
+            # reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
                 reward = 0

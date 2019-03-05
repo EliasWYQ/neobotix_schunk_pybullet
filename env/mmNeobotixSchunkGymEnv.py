@@ -96,7 +96,7 @@ class MMNeobotixSchunkGymEnv(gym.Env):
         p.setTimeStep(self._timeStep)
 
         p.setGravity(0, 0, -9.8)
-        p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, 0])
+        p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/plane.urdf"), [0, 0, -0.005])
 
         d_space_scale = len(str(abs(self.count)))*0.5
         # self._maxSteps = 1000 + 500*len(str(abs(self.count)))
@@ -108,7 +108,7 @@ class MMNeobotixSchunkGymEnv(gym.Env):
         self.goal = [xpos, ypos, zpos]
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), self.goal)
 
-        self._mmneoschunk = mmNeobotixSchunk.MMNeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self.isEnableRandInit)
+        self._mmneoschunk = mmNeobotixSchunk.MMNeobotixSchunk(urdfRootPath=self._urdfRoot, randomInitial=self.isEnableRandInit)
         self._envStepCounter = 0
         p.stepSimulation()
         self._observation = self.getExtendedObservation()

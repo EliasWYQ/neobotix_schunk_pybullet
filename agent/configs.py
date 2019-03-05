@@ -47,8 +47,8 @@ def default():
       all=r'.*',
       policy=r'.*/policy/.*',
       value=r'.*/value/.*')
-  policy_layers = 200, 100
-  value_layers = 200, 100
+  policy_layers = 256, 128
+  value_layers = 256, 128
   init_mean_factor = 0.1
   init_logstd = -1
   # Optimization

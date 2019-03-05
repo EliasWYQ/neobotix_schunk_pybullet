@@ -19,7 +19,7 @@ p.resetSimulation()
 p.setPhysicsEngineParameter(numSolverIterations=150, enableFileCaching=0)
 p.setTimeStep(1./240.)
 p.setGravity(0, 0, -10)
-# p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI.mp4")
+p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI5.mp4")
 p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
 
 planeId = p.loadURDF(os.path.join(parentdir, "neobotix_schunk_pybullet/data/plane.urdf"))

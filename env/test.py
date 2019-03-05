@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 r1 = 0
 r2 = 0
+r3 = 0
 r = 0
 returns = []
 ree=[]
@@ -11,9 +12,10 @@ ddbase=[]
 ts = []
 discount = 0.995
 d0 = 1
-N=200
+N=1000
 return1=[]
 return2=[]
+return3=[]
 def intd(t):
     if t<500:
         d0 = np.random.uniform(0.5, 1)
@@ -56,8 +58,8 @@ for t in range(N):
 
     # print(de,dm,p)
     tau = de/d0
-    tau=tau**2
-    rt1= (1-tau)*de+tau*dm
+    tau = tau**2
+    rt1 = (1-tau)*de+tau*dm
     #print(p)
     rt2 = (1-tau)*de + dm*tau - p - t/N/2
     rt = -rt1
@@ -65,17 +67,21 @@ for t in range(N):
     dm = -dm
     r1 += rt1 * discount ** t
     r2 += rt2*discount**t
+    r3 += rt * discount ** t
     ts.append(t)
     return1.append(r1)
     return2.append(r2)
+    return3.append(r3)
     returns.append(rt)
     ree.append(de)
     rbase.append(dm)
     ddee.append(de-rt)
     ddbase.append(dm-rt)
-plt.plot(ree, 'bo-', rbase, 'g*-' ,returns, 'r.-')
+plt.plot(ree, 'bo-', rbase, 'g*-', returns, 'r.-')
 plt.figure(2)
 plt.plot(ddee, 'bo-', ddbase, 'g*-')
+plt.figure(3)
+plt.plot(return1, 'r', return3, 'b')
 #plt.plot(return1, 'bo-', return2, 'g*-')
 plt.show()
 print(returns)

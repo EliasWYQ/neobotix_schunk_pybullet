@@ -34,12 +34,12 @@ class MKuka:
 
     def reset(self):
         #p.setGravity(0, 0, -9.8)
-        self.kukaUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/kuka_iiwa/model_free_base.urdf"))
+        self.kukaUid = p.loadURDF(os.path.join(self.urdfRootPath, "neobotix_schunk_pybullet/data/kuka_iiwa/model_free_base.urdf"),[0,0,1])
 
-        #for i in range (p.getNumJoints(self.kukaUid)):
-            #print(p.getJointInfo(self.kukaUid,i))
+        # for i in range (p.getNumJoints(self.kukaUid)):
+            # print(p.getJointInfo(self.kukaUid,i))
 
-        p.createConstraint(self.kukaUid, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0], [0., 0., 0], [0, 0, 0, 1])
+        p.createConstraint(self.kukaUid, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, -1], [0., 0., 0], [0, 0, 0, 1])
 
         # reset arm joint positions and controllers
         if self.randInitial:

@@ -109,13 +109,15 @@ class NeobotixSchunk:
         initial_wheel_vel = np.zeros(len(self.wheelIndex))
         self.baseVelocity = np.zeros(len(self.wheelIndex))
         self.jointPosition = initial_joint_positions
+        initial_joint_vel = np.zeros(len(self.armIndex))
 
         for i in range(len(self.wheelIndex)):
+            p.resetJointState(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.wheelIndex[i], targetValue=initial_wheel_vel[i], targetVelocity=initial_wheel_vel[i])
             p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.wheelIndex[i], controlMode=p.VELOCITY_CONTROL,
                                     targetVelocity=initial_wheel_vel[i], force=self.maxForce)
 
         for j in range(len(self.armIndex)):
-            # p.resetJointState(self.neobotixschunkUid, self.armIndex[j], initial_joint_positions[j])
+            p.resetJointState(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.armIndex[j], targetValue=initial_joint_positions[j], targetVelocity=initial_joint_vel[j])
             p.setJointMotorControl2(bodyUniqueId=self.neobotixschunkUid, jointIndex=self.armIndex[j], controlMode=p.POSITION_CONTROL,
                                     targetPosition=initial_joint_positions[j], force=self.maxForce)
 
@@ -143,6 +145,18 @@ class NeobotixSchunk:
         baseeul = p.getEulerFromQuaternion(baseorn)
         observation.extend(list(basepos))
         observation.extend(list(baseeul))
+
+        # get joint positions
+        #joint_s = p.getJointStates(bodyUniqueId=self.neobotixschunkUid,  jointIndices=list(self.armIndex))
+        for i in self.armIndex:
+            joints = p.getJointState(bodyUniqueId=self.neobotixschunkUid, jointIndex=i)
+            observation.append((joints[0]))
+
+        # get base linear and angular vel
+        basev = p.getBaseVelocity(self.neobotixschunkUid)
+        observation.extend(list(basev[0][0:2]))
+        observation.append(basev[1][2])
+
         return observation
 
     def check_base_velocity(self, base_vel, delta_bv):

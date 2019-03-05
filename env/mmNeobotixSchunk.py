@@ -11,11 +11,9 @@ URDF_USE_SELF_COLLISION=1
 
 class MMNeobotixSchunk:
 
-    def __init__(self, urdfRootPath=parentdir, timeStep=0.01, randomInitial = False):
+    def __init__(self, urdfRootPath=parentdir, randomInitial = False):
         self.urdfRootPath = urdfRootPath
-        self.timeStep = timeStep
         self.randInitial = randomInitial
-        self.maxVelocity = .35
         self.maxForce = 1000.
         self.useSimulation = 1
         self.useOrientation = 1
@@ -117,14 +115,6 @@ class MMNeobotixSchunk:
             p.setJointMotorControl2(self.schunkUID, jointIndex+1, controlMode=p.POSITION_CONTROL,
                                     targetPosition=initial_jointPositions[jointIndex], force=self.maxForce)
 
-        self.wheelDeltasTurn = [1, -1, 1, -1]
-        self.wheelDeltasFwd = [1, 1, 1, 1]
-
-        # initial_kukastate = p.getLinkState(self.schunkUID, self.schunkEndEffectorIndex)
-        # print('kuka',initial_kukastate)
-        # self.kukastate = [initial_kukastate[0][0],initial_kukastate[0][1], initial_kukastate[0][2]]
-
-        initial_base_vel = p.getBaseVelocity(self.neoUID)
         self.baseVel = 0
         self.baseAng = 0
         '''
@@ -152,11 +142,10 @@ class MMNeobotixSchunk:
 
     def getObservation(self):
         observation = []
-        #huskystate = p.getLinkState(self.neoUID, 0)
-        kukastate = p.getLinkState(bodyUniqueId=self.schunkUID,  linkIndex=self.schunkEndEffectorIndex,
+        # huskystate = p.getLinkState(self.neoUID, 0)
+        state = p.getLinkState(bodyUniqueId=self.schunkUID,  linkIndex=self.schunkEndEffectorIndex,
                                    computeLinkVelocity=0,  computeForwardKinematics=0)
-        state = kukastate
-        #print('state: ', state)
+        # print('state: ', state)
         pos = state[0]
         orn = state[1]
         if (len(state)>6):
@@ -224,15 +213,15 @@ class MMNeobotixSchunk:
 
         if (len(motorCommands)==5):
             dp = motorCommands[0:3]
-            kukastates = p.getLinkState(self.schunkUID, self.schunkEndEffectorIndex)
-            pos = kukastates[4]
+            schunkstates = p.getLinkState(self.schunkUID, self.schunkEndEffectorIndex)
+            pos = schunkstates[4]
             eeposx = pos[0] + dp[0]
             eeposy = pos[1] + dp[1]
             eeposz = pos[2] + dp[2]
 
             eepos = [eeposx, eeposy, eeposz]
-            print(eepos)
-            # self.kukastate = eepos
+            # print(eepos)
+            # self.schunkstate = eepos
             # baseVel is the translational speed of husky
             self.baseVel = self.baseVel + motorCommands[3]
             # baseAng is the rotational speed of husky
@@ -246,9 +235,9 @@ class MMNeobotixSchunk:
             else:
                 threshold = 0.001
                 maxIter = 100
-                #jointPoses = self.accurateCalculateInverseKinematics(self.schunkUID, self.schunkEndEffectorIndex, eepos, threshold, maxIter)
+                # jointPoses = self.accurateCalculateInverseKinematics(self.schunkUID, self.schunkEndEffectorIndex, eepos, threshold, maxIter)
                 jointPoses = p.calculateInverseKinematics(self.schunkUID, self.schunkEndEffectorIndex, eepos)
-            print('jp', jointPoses)
+            # print('jp', jointPoses)
         # action of arm ee position changes
         elif (len(motorCommands) == 9):
             dp = motorCommands[0:7]
