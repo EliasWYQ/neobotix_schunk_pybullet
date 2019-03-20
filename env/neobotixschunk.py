@@ -147,7 +147,7 @@ class NeobotixSchunk:
         observation.extend(list(baseeul))
 
         # get joint positions
-        #joint_s = p.getJointStates(bodyUniqueId=self.neobotixschunkUid,  jointIndices=list(self.armIndex))
+        # joint_s = p.getJointStates(bodyUniqueId=self.neobotixschunkUid,  jointIndices=list(self.armIndex))
         for i in self.armIndex:
             joints = p.getJointState(bodyUniqueId=self.neobotixschunkUid, jointIndex=i)
             observation.append((joints[0]))
@@ -162,7 +162,7 @@ class NeobotixSchunk:
     def check_base_velocity(self, base_vel, delta_bv):
         if np.abs(base_vel[0]) > 1.5:
             base_vel[0] = base_vel[0] - delta_bv[0]
-        if np.abs(base_vel[1]) > 2:
+        if np.abs(base_vel[1]) > 1:
             base_vel[1] = base_vel[1] - delta_bv[1]
         return base_vel
 

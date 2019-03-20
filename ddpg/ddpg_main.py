@@ -12,9 +12,10 @@ from ddpg.ddpg_nn import DDPG  #_dropout
 import numpy as np
 import time
 import tensorflow as tf
+from env.neobotixGymEnv import NeobotixGymEnv
 
 # 设置全局变量
-MAX_EPISODES = 10000
+MAX_EPISODES = 5000
 MAX_EP_STEPS = 1000
 ON_TRAIN = 1  # True or False
 LEARN_START = 10000
@@ -24,7 +25,8 @@ VAR = 4  # control exploration
 ACTION_NOISE = True
 
 # 设置环境
-env = NeobotixSchunkGymEnv(renders=False, isDiscrete=False, maxSteps=1000, action_dim=9)
+env = NeobotixSchunkGymEnv(renders=0, isDiscrete=False, maxSteps=1000, action_dim=9)
+# env = NeobotixGymEnv(renders=0, isDiscrete=False, maxSteps=1000, action_dim=2)
 s_dim = env.observation_dim
 a_dim = env._action_dim
 a_bound = env.action_bound[1]
@@ -77,6 +79,7 @@ def train():
 
 
 def eval():
+    var = VAR
     rl.restore()
     i = 0.0
     j = 0
@@ -87,7 +90,7 @@ def eval():
         ep_r = 0.
         i += 1
         for j in range(MAX_EP_STEPS):
-            VAR = VAR*0.9999
+            var = var*0.9999
             a = rl.choose_action(s)
             a = np.clip(np.random.normal(a, VAR), -1, 1)
             s, r, done, info = env.step(a)

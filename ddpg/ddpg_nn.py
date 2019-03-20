@@ -23,7 +23,7 @@ from copy import copy
 
 LR_A = 1e-4   # learning rate for actor
 LR_C = 3e-4   # learning rate for critic
-GAMMA = 0.999     # reward discount
+GAMMA = 0.995     # reward discount
 TAU = 0.01      # soft replacement
 MEMORY_CAPACITY = 200000
 BATCH_SIZE = 512

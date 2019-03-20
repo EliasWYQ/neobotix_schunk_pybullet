@@ -32,6 +32,7 @@ from env.mmKukaHuskyGymEnv import MMKukaHuskyGymEnv
 from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 from env.mmNeobotixSchunkGymEnv import MMNeobotixSchunkGymEnv
 from env.mKukaGymEnv import MKukaGymEnv
+from env.neobotixGymEnv import NeobotixGymEnv
 
 def default():
   """Default configuration for PPO."""
@@ -121,6 +122,15 @@ def pybullet_racecar():
   env = 'RacecarBulletEnv-v0' #functools.partial(racecarGymEnv.RacecarGymEnv, isDiscrete=False, renders=True)
   max_length = 10
   steps = 1e7  # 10M
+  return locals()
+
+def pybullet_neo_reaching():
+  """Configuration for Bullet single Kuka task."""
+  locals().update(default())
+  env = functools.partial(NeobotixGymEnv, isDiscrete=False, renders=False, action_dim=2, rewardtype='rdense')
+  # Environment
+  max_length = 1000
+  steps = 1e8  # 100M
   return locals()
 
 def pybullet_kuka_reaching():
