@@ -147,7 +147,7 @@ if __name__ == '__main__':
       'num_agents', 1,
       'How many environments to step in parallel.')
   tf.app.flags.DEFINE_integer(
-      'num_episodes', 5,
+      'num_episodes', 5000,
       'Minimum number of episodes to render.')
   tf.app.flags.DEFINE_boolean(
       'env_processes', True,

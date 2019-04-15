@@ -44,7 +44,8 @@ class NeobotixSchunkGymEnv(gym.Env):
                  maxSteps=1e3,
                  rewardtype='rdense',
                  action_dim=9,
-                 randomInitial=False):
+                 randomInitial=True,
+                 wsboundary=2):
         self._urdfRoot = urdfRoot
         self._actionRepeat = actionRepeat
         self._isEnableSelfCollision = isEnableSelfCollision
@@ -54,6 +55,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._rewardtype = rewardtype
         self._action_dim = action_dim
         self._isEnableRandInit = randomInitial
+        self.d_ws = wsboundary
         self._observation = []
         self._envStepCounter = 0
         self._timeStep = 1. / 240.
@@ -64,8 +66,12 @@ class NeobotixSchunkGymEnv(gym.Env):
         self._cam_pitch = -40
         self._dis_vor = 100
         self._count = 0
-        self.dis_init = 100
+        self._count_ep = 0
+        self.dis_init = 1e5
+        self.ee_dis = 1e5
+        self.base_dis = 1e5
         self.goal = []
+        self.obs_pose = []
         self._p = p
 
         if self._renders:
@@ -88,7 +94,11 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.origoal = np.array([0, 0, 0, 1])
 
         self.goalUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/spheregoal.urdf"), basePosition=self.goal)
-        self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit)
+
+        self.obs_pose = np.ones(3)
+        self.obsUid = p.loadURDF(os.path.join(self._urdfRoot, "neobotix_schunk_pybullet/data/cube.urdf"),
+                                  basePosition=self.obs_pose)
+        self._neobotixschunk = neobotixschunk.NeobotixSchunk(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, randomInitial=self._isEnableRandInit, wsboundary=self.d_ws)
 
         self.reset()
         self.observation_dim = len(self.getExtendedObservation())
@@ -106,31 +116,53 @@ class NeobotixSchunkGymEnv(gym.Env):
         # help(neobotixschunk)
 
     def reset(self):
+        self.reset_again()
+        while 1:
+            flag = self.check_collision_self()
+            if flag:
+                self.reset_again()
+            else:
+                print('no collision')
+                break
+        self._count+=1
+        print(self._count)
+
+    def reset_again(self):
         self.r_penalty = 0
         self._terminated = 0
         # p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI1.mp4")
 
         # d_space_scale = len(str(abs(self._count))) * 0.5
         # self._maxSteps = 1000 + 500 * len(str(abs(self._count)))
-        d_space_scale = 1
-        print('Scale here: ', self._count, d_space_scale, self._maxSteps)
+        d_space_scale = self.d_ws
+        if self._count_ep:
+            print('Scale here: ', self._count, self._count_ep, self._count/self._count_ep, d_space_scale, self._maxSteps)
         xpos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
         ypos = np.random.uniform(-d_space_scale, d_space_scale)
         zpos = np.random.uniform(0.5, 1.5)
-
         self.goal = np.array([xpos, ypos, zpos])
         p.resetBasePositionAndOrientation(self.goalUid, self.goal, self.origoal)
+
+
+        xopos = np.random.uniform(-d_space_scale, d_space_scale) + 0.20
+        yopos = np.random.uniform(-d_space_scale, d_space_scale)
+        zopos = np.random.uniform(0, 1.5)
+        self.obs_pose = np.array([xopos, yopos, zopos])
+        p.resetBasePositionAndOrientation(self.obsUid, self.obs_pose, self.origoal)
+
         self._neobotixschunk.reset()
 
         self._envStepCounter = 0
         p.stepSimulation()
-        # time.sleep(self._timeStep)
-        # time.sleep(self._timeStep)
+        time.sleep(self._timeStep)
+        time.sleep(self._timeStep)
         self._observation = self.getExtendedObservation()
         # print(p.getContactPoints())
         eedisvec = np.subtract(self._observation[0:3], self.goal)
         self.dis_init = np.linalg.norm(eedisvec)
         self.ee_dis = self.dis_init
+        bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
+        self.base_dis = np.linalg.norm(bdisvec)
 
         return np.array(self._observation)
 
@@ -147,19 +179,22 @@ class NeobotixSchunkGymEnv(gym.Env):
     def getExtendedObservation(self):
         observation = self._neobotixschunk.getObservation()
         observation.extend(self.goal)
+        observation.extend(observation[0:3]-self.goal)
+        observation.append(self.ee_dis)
+        observation.extend(observation[6:8]-self.goal[0:2])
+        observation.append(self.base_dis)
+        observation.append(self._terminated)
         self._observation = observation
         return self._observation
 
     def step(self, input_action):
         if self.ee_dis < 0.5:
             p_scale = 0.01
-            #input_action[0:2] = input_action[0:2]*np.ones(2)*p_scale
-            input_action = np.multiply(input_action, self.action_bound*p_scale)
+            # input_action[0:2] = input_action[0:2]*np.ones(2)*p_scale
         else:
             p_scale = 1
             # input_action[2:9] = input_action[2:9]*np.ones(7)*p_scale
-            input_action = np.multiply(input_action, self.action_bound*p_scale)
-        # scaled_action = np.multiply(input_action, self.action_bound*p_scale)
+        scaled_action = np.multiply(input_action, self.action_bound*p_scale)
         scaled_action = input_action
         return self.step_shaped(scaled_action)
 
@@ -170,6 +205,7 @@ class NeobotixSchunkGymEnv(gym.Env):
             p.stepSimulation()
             done = self._termination()
             if done:
+                self._count_ep += 1
                 break
             self._envStepCounter += 1
         if self._renders:
@@ -205,18 +241,23 @@ class NeobotixSchunkGymEnv(gym.Env):
         return rgb_array
 
     def check_collision_self(self):
+        dcontact = p.getContactPoints(self.obsUid)
+        if len(dcontact):
+            print('1 collision')
+            return True
+
         for i in self._neobotixschunk.checkCollisonIndex:
             dcontact = p.getContactPoints(self._neobotixschunk.neobotixschunkUid, self._neobotixschunk.neobotixschunkUid, i)
 
             if len(dcontact):
-                # print(dcontact)
+                print('2 collison')
                 return True
         return False
 
     def _termination(self):
         self._observation = self.getExtendedObservation()
 
-        if self._terminated or (self._envStepCounter > self._maxSteps):
+        if self._terminated or (self._envStepCounter >= self._maxSteps-1):
             return True
         eedisvec = np.subtract(self._observation[0:3], self.goal)
         self.ee_dis = np.linalg.norm(eedisvec)
@@ -224,7 +265,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.base_dis = np.linalg.norm(bdisvec)
 
         if self.check_collision_self():
-            self._terminated = 1
+            self._terminated = -1
             self.r_penalty = -1e5
             print('ACHTUNG : collision!')
             return True
@@ -262,8 +303,9 @@ class NeobotixSchunkGymEnv(gym.Env):
             penalty = 0 #self._envStepCounter/self._maxSteps/2
 
         if self._rewardtype == 'rdense':
-            # reward = -(1-tau)*self.ee_dis - tau*self.base_dis + self.r_penalty + penalty
-            reward = -self.ee_dis + self.r_penalty
+            # reward = -(1-tau)*self.ee_dis - tau*self.base_dis + self.r_penalty -np.linalg.norm(self._actions)#+ penalty
+            reward = -self.ee_dis**3 + self.r_penalty
+            reward = reward**3
             # reward = -reward
         elif self._rewardtype == 'rsparse':
             if delta_dis > 0:
@@ -275,7 +317,7 @@ class NeobotixSchunkGymEnv(gym.Env):
     def _sample_action(self):
         if not self._isDiscrete:
             if self._action_dim == 9:
-                d = 1
+                d = 5
                 action = np.array([np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d),
                                    np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d),
                                    np.random.uniform(-d, d), np.random.uniform(-d, d), np.random.uniform(-d, d)])

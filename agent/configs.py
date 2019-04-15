@@ -48,8 +48,8 @@ def default():
       all=r'.*',
       policy=r'.*/policy/.*',
       value=r'.*/value/.*')
-  policy_layers = 256, 128
-  value_layers = 256, 128
+  policy_layers = 400, 300
+  value_layers = 400, 300
   init_mean_factor = 0.1
   init_logstd = -1
   # Optimization
@@ -60,7 +60,7 @@ def default():
   update_epochs_value = 64
   learning_rate = 3e-4
   # Losses
-  discount = 0.999
+  discount = 0.995
   kl_target = 1e-2
   kl_cutoff_factor = 2
   kl_cutoff_coef = 1000
@@ -157,7 +157,7 @@ def pybullet_neoschunk_reaching():
   env = functools.partial(NeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
   # Environment
   max_length = 1000
-  steps = 2e8  # 100M
+  steps = 1e9  # 100M
   return locals()
 
 def pybullet_kukahusky_reaching():

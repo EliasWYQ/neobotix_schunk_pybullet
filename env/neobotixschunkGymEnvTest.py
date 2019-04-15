@@ -6,6 +6,7 @@ model modified by Y. Zhang and J. Su.
 '''
 import os
 import inspect
+import time
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
@@ -29,15 +30,18 @@ def main():
     actionIds.append(environment._p.addUserDebugParameter("arm_7_joint", -dv, dv, 0))
 
     done = 0
+
     t=0
     disc_total_rew=0
     while not done:
-        # environment.reset()
+        environment.reset()
+        time.sleep(1)
+        '''
         action = []
         for actionId in actionIds:
             action.append(environment._p.readUserDebugParameter(actionId))
-        #state, reward, done, info = environment.step(action)
-        state, reward, done, info = environment.step(environment._sample_action())
+        state, reward, done, info = environment.step(action)
+        #state, reward, done, info = environment.step(environment._sample_action())
         # print('r', reward)
         #print('step', state, reward, done, info)
         obs = environment.getExtendedObservation()
@@ -46,6 +50,6 @@ def main():
         disc_total_rew += 1 * 0.99 ** t
         t += 1
     print(disc_total_rew, t)
-
+'''
 if __name__=="__main__":
     main()
