@@ -157,7 +157,7 @@ def pybullet_neoschunk_reaching():
   env = functools.partial(NeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
   # Environment
   max_length = 1000
-  steps = 1e9  # 100M
+  steps = 1e10  # 100M
   return locals()
 
 def pybullet_kukahusky_reaching():

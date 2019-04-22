@@ -45,7 +45,7 @@ class NeobotixSchunkGymEnv(gym.Env):
                  rewardtype='rdense',
                  action_dim=9,
                  randomInitial=True,
-                 wsboundary=2):
+                 wsboundary=1):
         self._urdfRoot = urdfRoot
         self._actionRepeat = actionRepeat
         self._isEnableSelfCollision = isEnableSelfCollision
@@ -72,6 +72,7 @@ class NeobotixSchunkGymEnv(gym.Env):
         self.base_dis = 1e5
         self.goal = []
         self.obs_pose = []
+        self.flag_collide = 0
         self._p = p
 
         if self._renders:
@@ -118,14 +119,16 @@ class NeobotixSchunkGymEnv(gym.Env):
     def reset(self):
         self.reset_again()
         while 1:
-            flag = self.check_collision_self()
-            if flag:
+            flag1 = self.check_collision_obs()
+            flag2 = self.check_collision_self()
+            if ((flag1) or (flag2)):
                 self.reset_again()
             else:
-                print('no collision')
+                #print('no collision')
                 break
-        self._count+=1
-        print(self._count)
+        #self._count+=1
+        #print(self._count)
+        return np.array(self._observation)
 
     def reset_again(self):
         self.r_penalty = 0
@@ -154,17 +157,17 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         self._envStepCounter = 0
         p.stepSimulation()
-        time.sleep(self._timeStep)
-        time.sleep(self._timeStep)
+        #time.sleep(0.1)
+        # time.sleep(self._timeStep)
         self._observation = self.getExtendedObservation()
-        # print(p.getContactPoints())
-        eedisvec = np.subtract(self._observation[0:3], self.goal)
-        self.dis_init = np.linalg.norm(eedisvec)
-        self.ee_dis = self.dis_init
-        bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
-        self.base_dis = np.linalg.norm(bdisvec)
 
-        return np.array(self._observation)
+        #eedisvec = np.subtract(self._observation[0:3], self.goal)
+        self.dis_init = np.linalg.norm(self._observation[0:3])
+        self.ee_dis = self.dis_init
+        #bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
+        self.base_dis = np.linalg.norm(self._observation[6:8])
+
+        #return np.array(self._observation)
 
     def __del__(self):
         p.disconnect()
@@ -178,16 +181,18 @@ class NeobotixSchunkGymEnv(gym.Env):
 
     def getExtendedObservation(self):
         observation = self._neobotixschunk.getObservation()
-        observation.extend(self.goal)
-        observation.extend(observation[0:3]-self.goal)
-        observation.append(self.ee_dis)
-        observation.extend(observation[6:8]-self.goal[0:2])
-        observation.append(self.base_dis)
-        observation.append(self._terminated)
+        #observation.extend(self.goal)
+        relative_pos = self.goal - observation[0:3]
+        observation[0:3] = relative_pos
+        relative_pos_base = self.goal[0:2] - observation[6:8]
+        observation[6:8] = relative_pos_base
+        observation.append(self.flag_collide)
+        #print(observation)
         self._observation = observation
         return self._observation
 
     def step(self, input_action):
+        '''
         if self.ee_dis < 0.5:
             p_scale = 0.01
             # input_action[0:2] = input_action[0:2]*np.ones(2)*p_scale
@@ -195,6 +200,7 @@ class NeobotixSchunkGymEnv(gym.Env):
             p_scale = 1
             # input_action[2:9] = input_action[2:9]*np.ones(7)*p_scale
         scaled_action = np.multiply(input_action, self.action_bound*p_scale)
+        '''
         scaled_action = input_action
         return self.step_shaped(scaled_action)
 
@@ -240,17 +246,19 @@ class NeobotixSchunkGymEnv(gym.Env):
         rgb_array = rgb_array[:, :, :3]
         return rgb_array
 
-    def check_collision_self(self):
+    def check_collision_obs(self):
         dcontact = p.getContactPoints(self.obsUid)
-        if len(dcontact):
-            print('1 collision')
+        self.flag_collide = len(dcontact)
+        if self.flag_collide:
+            #print('1 collision', self.flag_collide)
             return True
+        return False
 
+    def check_collision_self(self):
         for i in self._neobotixschunk.checkCollisonIndex:
             dcontact = p.getContactPoints(self._neobotixschunk.neobotixschunkUid, self._neobotixschunk.neobotixschunkUid, i)
-
             if len(dcontact):
-                print('2 collison')
+                #print('2 collison')
                 return True
         return False
 
@@ -259,20 +267,26 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         if self._terminated or (self._envStepCounter >= self._maxSteps-1):
             return True
-        eedisvec = np.subtract(self._observation[0:3], self.goal)
-        self.ee_dis = np.linalg.norm(eedisvec)
-        bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
-        self.base_dis = np.linalg.norm(bdisvec)
+        #eedisvec = np.subtract(self._observation[0:3], self.goal)
+        self.ee_dis = np.linalg.norm(self._observation[0:3])
+        #bdisvec = np.subtract(self._observation[6:8], self.goal[0:2])
+        self.base_dis = np.linalg.norm(self._observation[6:8])
+
+        if self.check_collision_self():
+            self._terminated = 0
+            self.r_penalty = -self.d_ws*(np.tanh(self.flag_collide)+3)
+            #print('ACHTUNG : collision with obs!')
+            return False
 
         if self.check_collision_self():
             self._terminated = -1
-            self.r_penalty = -1e5
-            print('ACHTUNG : collision!')
+            self.r_penalty = -self.d_ws*10
+            #print('ACHTUNG : self-collision!')
             return True
 
         if self.ee_dis < 0.1:
             self._terminated = 1
-            self.r_penalty = 1e5
+            self.r_penalty = self.d_ws*10
             self._count += 1
             print('Terminate:', self._observation, self.ee_dis, self.goal)
             # terminate:
@@ -304,7 +318,7 @@ class NeobotixSchunkGymEnv(gym.Env):
 
         if self._rewardtype == 'rdense':
             # reward = -(1-tau)*self.ee_dis - tau*self.base_dis + self.r_penalty -np.linalg.norm(self._actions)#+ penalty
-            reward = -self.ee_dis**3 + self.r_penalty
+            reward = -self.ee_dis + self.r_penalty
             reward = reward**3
             # reward = -reward
         elif self._rewardtype == 'rsparse':
