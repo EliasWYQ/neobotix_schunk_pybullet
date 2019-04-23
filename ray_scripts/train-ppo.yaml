@@ -1,0 +1,28 @@
+train-ppo:
+    env: env_mp500lwa4dpg70
+    run: PPO
+    checkpoint_freq: 1000
+    stop:
+      "timesteps_total": 1e10
+    config:
+      lambda: 0.995
+      kl_coeff: 1.0
+      lr: 3e-4
+      vf_loss_coeff: 1.0
+      vf_share_layers: False
+      sgd_minibatch_size: 128
+      sample_batch_size: 2000
+      train_batch_size: 320000
+      num_sgd_iter: 30
+      num_workers: 6
+      num_gpus: 0
+      clip_param: 0.3
+      vf_clip_param: 1e3
+      simple_optimizer: False
+      batch_mode: truncate_episodes
+      monitor: False
+      synchronize_filters: True
+      model:
+        fcnet_activation: tanh
+        fcnet_hiddens: [256, 256]
+    observation_filter: MeanStdFilter
