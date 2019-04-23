@@ -23,7 +23,8 @@ class NeobotixSchunk:
     def __init__(self,
                  urdfRootPath=parentdir,
                  timeStep=0.01,
-                 randomInitial=False):
+                 randomInitial=False,
+                 wsarea=1):
         self.urdfRootPath = urdfRootPath
         self.timeStep = timeStep
         self.maxVelocity = 1.5  # unused yet
@@ -32,6 +33,7 @@ class NeobotixSchunk:
         self.useNullSpace = 0  # unused yet
         self.useOrientation = 1  # unused yet
         self.read_sim = 0
+        self.ws_range = wsarea
         self.randInitial =randomInitial
         self.j1_limit = np.pi  # limits for arm link 1, 3, 5
         self.j4_limit = 120/180*np.pi  # limits for arm link 4
@@ -94,10 +96,11 @@ class NeobotixSchunk:
             j5 = np.random.uniform(-self.j1_limit, self.j1_limit)
             j6 = np.random.uniform(-self.j6_limit, self.j6_limit)
             j7 = np.random.uniform(-self.j7_limit, self.j7_limit)
-            initial_joint_positions = np.array([j1, j2, j3, j4, j5, j6, j7])
+            # initial_joint_positions = np.array([j1, j2, j3, j4, j5, j6, j7])
+            initial_joint_positions = np.zeros(len(self.armIndex))
 
             bpos, born = p.getBasePositionAndOrientation(self.neobotixschunkUid)
-            initial_basep = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1), bpos[2]])
+            initial_basep = np.array([np.random.uniform(-self.ws_range, self.ws_range), np.random.uniform(-self.ws_range, self.ws_range), bpos[2]])
             initial_basea = np.array([0, 0, np.random.uniform(-np.pi, np.pi)])
             initial_baseo = p.getQuaternionFromEuler(initial_basea)
         else:
@@ -143,7 +146,7 @@ class NeobotixSchunk:
         # get base pose
         basepos, baseorn = p.getBasePositionAndOrientation(self.neobotixschunkUid)
         baseeul = p.getEulerFromQuaternion(baseorn)
-        observation.extend(list(basepos))
+        observation.extend(list(basepos[0:2]))
         observation.extend(list(baseeul))
 
         # get joint positions
