@@ -1,3 +1,10 @@
+'''
+developed by Z. Zheng, @KIT-IPR
+
+python3 -m ray_scripts.rllib_ppo_neoschunk train
+
+python3 -m ray_scripts.rllib_ppo_neoschunk rollout checkpoint(pathdir) #--run PPO
+'''
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -20,12 +27,6 @@ from ray.rllib.models import MODEL_DEFAULTS
 from ray.rllib import train
 from ray.rllib import rollout
 
-'''
-python3 -m ray_scripts.rllib_ppo_neoschunk train
-
-python3 -m ray_scripts.rllib_ppo_neoschunk rollout checkpoint(pathdir) #--run PPO
-
-'''
 
 def env_input_config(train_or_rollout):
     envInputs = {
@@ -104,8 +105,8 @@ if __name__ == '__main__':
         "monitor": False,
         #"lambda": lambda: random.uniform(0.9, 1.0),
         "kl_coeff": 0.9,
-        "sample_batch_size": 2000,
-        "train_batch_size": 6000,
+        "sample_batch_size": 200,
+        "train_batch_size": 800,
         "sgd_minibatch_size": 128,
         "num_sgd_iter": 30,
         "lr": 3e-4,

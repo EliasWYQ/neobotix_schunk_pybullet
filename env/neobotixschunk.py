@@ -1,7 +1,8 @@
 '''
-original built by X. Wang, @KIT-IPR
+original built by X. Wang & Z. Zheng, @KIT-IPR
+developed by Z. Zheng
 schunk model meshes source : https://github.com/ipa320/schunk_modular_robotics
-nebotix model meshed source : https://github.com/neobotix/neo_mp_500
+neobotix model meshed source : https://github.com/neobotix/neo_mp_500
 model modified by Y. Zhang and J. Su.
 '''
 import os

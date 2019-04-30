@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-r"""Script to train a batch reinforcement learning algorithm.
+"""Script to train a batch reinforcement learning algorithm.
 
 Command line:
+  python3 -m agent.train_ppo --logdir=/path/to/logdir --config=pybullet_neoschunk_reaching
 
-  python3 -m agents.scripts.train --logdir=/path/to/logdir --config=pendulum
+or with rollout:
+  python3 -m agent.train_ppo --logdir=/path/to/logdir --config=pybullet_neoschunk_reaching --timestamp=20190103T111205
 """
 
 from __future__ import absolute_import

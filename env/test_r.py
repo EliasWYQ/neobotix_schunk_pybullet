@@ -16,9 +16,11 @@ g_normal = []
 g_reach = []
 
 edge = 1
-r_collison = -1e1
-r_reach = 1e1
-N = 2000
+r_collison = -1e3
+r_reach = 1e3
+N = 1000
+
+r_scale = 1
 
 
 plt.figure(1)
@@ -35,13 +37,13 @@ for i in range(N):
         else:
             ri = np.random.uniform(-edge*np.sqrt(edge), 0)
             rj = np.random.uniform(-edge*np.sqrt(edge), 0)
-        ri = ri**3
-        rj = rj**3
+        ri = ri**r_scale
+        rj = rj**r_scale
         returns += ri*tau**j
         returns_reach += rj*tau**j
     for k in range(N):
         rk = np.random.uniform(-edge*np.sqrt(edge), 0)
-        rk = rk**3
+        rk = rk**r_scale
         returns_normal += rk * tau ** k
     g.append(returns)
     g_normal.append(returns_normal)

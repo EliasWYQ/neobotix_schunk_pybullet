@@ -1,7 +1,8 @@
 '''
-original built by X. Wang, @KIT-IPR
+original built by X. Wang & Z. Zheng, @KIT-IPR
+developed by Z. Zheng
 schunk model meshes source : https://github.com/ipa320/schunk_modular_robotics
-nebotix model meshed source : https://github.com/neobotix/neo_mp_500
+neobotix model meshed source : https://github.com/neobotix/neo_mp_500
 model modified by Y. Zhang and J. Su.
 '''
 import os
@@ -15,7 +16,7 @@ os.sys.path.insert(0, parentdir)
 from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 
 def main():
-    environment = NeobotixSchunkGymEnv(renders=True, isDiscrete=False, maxSteps=1e5, action_dim=9)
+    environment = NeobotixSchunkGymEnv(renders=True, isDiscrete=False, maxSteps=1e5, action_dim=9, colliObj=1, wsboundary=1)
     # environment._p.startStateLogging(environment._p.STATE_LOGGING_VIDEO_MP4, "TEST_GUI.mp4")
     dv = 1
     actionIds = []
@@ -33,10 +34,10 @@ def main():
 
     t=0
     disc_total_rew=0
+    #
     while not done:
-        environment.reset()
-        time.sleep(1)
-        '''
+        #time.sleep(1)
+        #environment.reset()
         action = []
         for actionId in actionIds:
             action.append(environment._p.readUserDebugParameter(actionId))
@@ -50,6 +51,6 @@ def main():
         disc_total_rew += 1 * 0.99 ** t
         t += 1
     print(disc_total_rew, t)
-'''
+
 if __name__=="__main__":
     main()

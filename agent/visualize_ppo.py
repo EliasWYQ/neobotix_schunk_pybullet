@@ -16,7 +16,7 @@ r"""Script to render videos of the Proximal Policy Gradient algorithm.
 
 Command line:
 
-  python3 -m agents.scripts.visualize \
+  python3 -m agent.visualize_ppo \
       --logdir=/path/to/logdir/<time>-<config> --outdir=/path/to/outdir/
 """
 
