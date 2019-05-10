@@ -40,6 +40,7 @@ def env_input_config(train_or_rollout):
         'isEnableSelfCollision': True,
         'maxSteps': 1e3,
         'wsboundary': 1,
+        'colliObj': False,
     }
     if not train_or_rollout:
         envInputs['renders'] = True
@@ -100,20 +101,20 @@ if __name__ == '__main__':
     print('default model', MODEL_DEFAULTS)
     config_to_use = {
         "lambda": 0.995,
-        "num_workers": 3,
-        "num_gpus": 0,
+        "num_workers": 31,
+        "num_gpus": 2,
         "monitor": False,
         #"lambda": lambda: random.uniform(0.9, 1.0),
         "kl_coeff": 0.9,
         "sample_batch_size": 200,
-        "train_batch_size": 800,
+        "train_batch_size": 6600,
         "sgd_minibatch_size": 128,
         "num_sgd_iter": 30,
         "lr": 3e-4,
         "vf_loss_coeff": 1.0,
         "vf_share_layers": False,
         "clip_param": 0.3,
-        "vf_clip_param": 1e3,
+        "vf_clip_param": 1e4,
         "simple_optimizer": False,
         # Whether to rollout "complete_episodes" or "truncate_episodes"
         "batch_mode": "truncate_episodes",
@@ -121,7 +122,7 @@ if __name__ == '__main__':
         "model":
             {
                 "fcnet_activation": "tanh",
-                "fcnet_hiddens": [256, 256],
+                "fcnet_hiddens": [400, 300],
             },
     }
     train_agent(config_to_use)

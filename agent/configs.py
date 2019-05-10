@@ -154,7 +154,7 @@ def pybullet_neoschunk_mm_reaching():
 def pybullet_neoschunk_reaching():
   """Configuration for Bullet neo+schunk mm task."""
   locals().update(default())
-  env = functools.partial(NeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense')
+  env = functools.partial(NeobotixSchunkGymEnv, isDiscrete=False, renders=False, action_dim=9, rewardtype='rdense', wsboundary=1, colliObj=True)
   # Environment
   max_length = 1000
   steps = 1e10  # 100M

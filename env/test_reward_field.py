@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from env import fieldDirection
+from matplotlib import cm
 
 D_WS = 1
 HIGH_R = 1e3
@@ -25,21 +26,21 @@ def fun_field(x, y, goal, obs):
         rforce, d_rforce = computefield.compute_repulse(p_robot, obs)
         aforce, d_aforce = computefield.compute_attract(goal, p_robot)
         # print('force ', d_force)
-        if di_o < 0.0:
+        if di_o < 0.05:
             d1[i] = -1e1-7
         elif di_o < 0.2:
             d1[i] = -force
         else:
             d1[i] = -20*aforce
 
-        if di_g < 0.0:
+        if di_g < 0.05:
             d2[i] = 1e2
         elif di_g < 0.2:
             d2[i] = 20*aforce
         else:
             d2[i] = 20*aforce
 
-        d[i] = d1[i] #+ d2[i]
+        d[i] = d1[i] + d2[i]
     #print('max ', x[np.argmax(d)], y[np.argmax(d)], np.amax(d))
     maxgoal = np.array([x[np.argmax(d)], y[np.argmax(d)], np.amax(d)])
     return d, maxgoal
@@ -61,14 +62,14 @@ def fun_normal_dis(x, y, goal, obs):
         di_g = np.sqrt(deltax[i]**2+deltay[i]**2)
         di_o = np.sqrt(odeltax[i] ** 2 + odeltay[i] ** 2)
 
-        if di_o < 0.05:
+        if di_o < 0.:
             d1[i] = -1e1-10
         elif di_o < 0.2:
             d1[i] = -1/di_o
         else:
             d1[i] = 0
 
-        if di_g < 0.05:
+        if di_g < 0.0:
             d2[i] = 1e1+10
         elif di_g < 0.2:
             d2[i] = 1/(di_g**1)-di_g**2
@@ -90,9 +91,10 @@ if __name__ == '__main__':
     goal = np.array([np.random.uniform(-D_WS, D_WS), np.random.uniform(-D_WS, D_WS)])
     obs = np.array([np.random.uniform(-D_WS, D_WS), np.random.uniform(-D_WS, D_WS)])
     zs, znew = np.array(fun_normal_dis(np.ravel(X), np.ravel(Y), goal, obs))
+    #zs, znew = np.array(fun_field(np.ravel(X), np.ravel(Y), goal, obs))
     Z = zs.reshape(X.shape)
 
-    ax.plot_surface(X, Y, Z)
+    ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0.05)
 
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')

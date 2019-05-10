@@ -303,7 +303,7 @@ class NeobotixSchunkGymEnv(gym.Env):
             #print('ACHTUNG : self-collision!')
             return True
 
-        if self.ee_dis < 0.01:
+        if self.ee_dis < 0.1:
             self._terminated = 1
             self.r_penalty = 1e4
             self._count += 1
