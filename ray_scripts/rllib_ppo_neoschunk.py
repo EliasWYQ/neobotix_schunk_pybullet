@@ -21,7 +21,7 @@ from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 import ray
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
-from ray.rllib.agents.agent import with_common_config, COMMON_CONFIG
+from ray.rllib.agents.agent import COMMON_CONFIG
 from ray.rllib.models import MODEL_DEFAULTS
 
 from ray.rllib import train
