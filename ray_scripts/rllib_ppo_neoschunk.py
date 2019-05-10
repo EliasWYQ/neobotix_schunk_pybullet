@@ -21,8 +21,8 @@ from env.neobotixschunkGymEnv import NeobotixSchunkGymEnv
 import ray
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
-from ray.rllib.agents.agent import COMMON_CONFIG
-from ray.rllib.models import MODEL_DEFAULTS
+# from ray.rllib.agents.agent import COMMON_CONFIG
+# from ray.rllib.models import MODEL_DEFAULTS
 
 from ray.rllib import train
 from ray.rllib import rollout
@@ -97,8 +97,8 @@ def train_agent(config):
 
 
 if __name__ == '__main__':
-    print('default common', COMMON_CONFIG)
-    print('default model', MODEL_DEFAULTS)
+    # print('default common', COMMON_CONFIG)
+    # print('default model', MODEL_DEFAULTS)
     config_to_use = {
         "lambda": 0.995,
         "num_workers": 31,
