@@ -12,7 +12,7 @@ ddbase=[]
 ts = []
 discount = 0.995
 d0 = 1
-N=1000
+N=500
 return1=[]
 return2=[]
 return3=[]
@@ -30,7 +30,7 @@ def intd(t):
 def penalty(t, de):
     #d0 = intd(t)
     # de = np.random.uniform(0, (1-t/1500)*2+0.1)
-    dm = de + np.random.uniform(-0.1, 0.1)
+    dm = de + np.random.uniform(-0.5, 0.5)
 
     if de/d0>1:
         p = -(1-de/d0)*de
@@ -78,8 +78,10 @@ for t in range(N):
     ddee.append(de-rt)
     ddbase.append(dm-rt)
 plt.plot(ree, 'bo-', rbase, 'g*-', returns, 'r.-')
+plt.legend(['reward of endeffector', 'reward of base', 'return'],loc='upper left', numpoints=1, fontsize=20)
 plt.figure(2)
 plt.plot(ddee, 'bo-', ddbase, 'g*-')
+plt.legend(['error of endeffector reward', 'error of base reward'],loc='upper left', numpoints=1, fontsize=20)
 plt.figure(3)
 plt.plot(return1, 'r', return3, 'b')
 #plt.plot(return1, 'bo-', return2, 'g*-')

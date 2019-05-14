@@ -32,6 +32,7 @@ class FieldDirection:
     def compute_attract(self, pos_goal, pos_r):
         # calculate attract force
         deltaXY = np.subtract(pos_goal, pos_r)
+        #deltaXY = np.gradient(deltaXY)
         dis_XY = np.linalg.norm(deltaXY)
         return dis_XY, deltaXY
 
@@ -39,7 +40,10 @@ class FieldDirection:
         # calculate repulse force
         deltaXY = np.subtract(pos_r, pos_obs)
         dis_XY = np.linalg.norm(deltaXY)
-        deltaXY = (1/dis_XY - 1/0.2)/(dis_XY**2)*np.gradient(deltaXY)
+        if dis_XY<0.2:
+            deltaXY = (1/dis_XY - 1/0.25)/(dis_XY**2)*deltaXY/dis_XY
+        else:
+            deltaXY = np.zeros(2)
         dis_XY = np.linalg.norm(deltaXY)
         return dis_XY, deltaXY
 
@@ -47,7 +51,8 @@ class FieldDirection:
         # calculte the sum force
         fattr, dattr = self.compute_attract(pos_goal, pos_r)
         frep, drep = self.compute_repulse(pos_r, pos_obs)
-        force_direction = 20*dattr + 20*drep
+        force_direction = 3*dattr + drep
+        #force_direction = -np.gradient(field)
         force = np.linalg.norm(force_direction)
-        force_dunit = force_direction/force
+        #force_dunit = force_direction/force
         return force, force_direction
